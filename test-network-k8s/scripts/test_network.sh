@@ -43,6 +43,8 @@ function launch_peers() {
   kubectl -n $NS rollout status deploy/org2-peer1
   kubectl -n $NS rollout status deploy/org2-peer2
 
+  # Port forward for couchDB UI
+#  kubectl -n $NS port-forward deploy/org1-peer1 5984:5984 &
   pop_fn
 }
 
@@ -206,11 +208,37 @@ function create_local_MSP() {
   pop_fn
 }
 
-function network_up() {
+function build_and_push_images_locally() {
+  local env=$1
+  local image=$2
+  set -x
 
+  if [ "${env}" == "dev" ]; then
+    local dockerFile="DockerfileDev"
+  else
+    local dockerFile="Dockerfile"
+  fi
+
+  if [ "${image}" == "cc" ]; then
+      docker rmi $(docker images | grep ${CHAINCODE_NAME}) --force || true
+      docker build -f chaincode/${CHAINCODE_NAME}/${dockerFile} -t ${CHAINCODE_IMAGE} chaincode/${CHAINCODE_NAME}
+      docker tag ${CHAINCODE_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
+      docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
+  elif [ "${image}" == "app" ]; then
+      docker rmi $(docker images | grep ${APP_NAME}) --force || true
+      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME}
+      docker tag ${APP_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
+      docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
+  fi
+
+}
+
+
+function network_up() {
   # Kube config
   init_namespace
   init_storage_volumes
+
   load_org_config
 
   # Network TLS CAs
@@ -228,6 +256,29 @@ function network_up() {
   launch_peers
 }
 
+function network_resume() {
+    # Kube config
+    init_namespace
+    init_storage_volumes
+
+#    load_org_config
+
+    # Network TLS CAs
+    launch_TLS_CAs
+#    enroll_bootstrap_TLS_CA_users
+
+    # Network ECert CAs
+#    register_enroll_ECert_CA_bootstrap_users
+    launch_ECert_CAs
+#    enroll_bootstrap_ECert_CA_users
+
+    # Test Network
+#    create_local_MSP
+    launch_orderers
+    launch_peers
+}
+
+
 function stop_services() {
   push_fn "Stopping Fabric services"
 
@@ -239,7 +290,6 @@ function stop_services() {
   kubectl -n $NS delete deployment --all
   kubectl -n $NS delete pod --all
   kubectl -n $NS delete service --all
-  kubectl -n $NS delete configmap --all
   kubectl -n $NS delete secret --all
 
   pop_fn
@@ -250,6 +300,7 @@ function scrub_org_volumes() {
   
   # clean job to make this function can be rerun
   kubectl -n $NS delete jobs --all
+  kubectl -n $NS delete configmap --all
 
   # scrub all pv contents
   kubectl -n $NS create -f kube/job-scrub-fabric-volumes.yaml
@@ -261,5 +312,5 @@ function scrub_org_volumes() {
 
 function network_down() {
   stop_services
-  scrub_org_volumes
+#  scrub_org_volumes
 }

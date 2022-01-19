@@ -19,7 +19,7 @@ function app_one_line_pem {
     echo "`awk 'NF {sub(/\\n/, ""); printf "%s\\\\\\\n",$0;}' $1`"
 }
 
-function app_json_ccp {
+function json_ccp {
   local ORG=$1
   local PP=$(one_line_pem $2)
   local CP=$(one_line_pem $3)
@@ -46,17 +46,17 @@ function construct_application_configmap() {
   app_extract_MSP_archives
 
   mkdir -p build/application/wallet
-  mkdir -p build/application/gateways
+  mkdir -p build/application/gateway
   
   local peer_pem=build/msp/organizations/peerOrganizations/org1.example.com/msp/tlscacerts/org1-tls-ca.pem
   local ca_pem=build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts/org1-ecert-ca.pem
 
-  echo "$(json_ccp 1 $peer_pem $ca_pem)" > build/application/gateways/org1_ccp.json
+  echo "$(json_ccp 1 $peer_pem $ca_pem)" > build/application/gateway/org1_ccp.json
   
-  peer_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/tlscacerts/org2-tls-ca.pem
-  ca_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts/org2-ecert-ca.pem
-
-  echo "$(json_ccp 2 $peer_pem $ca_pem)" > build/application/gateways/org2_ccp.json
+#  peer_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/tlscacerts/org2-tls-ca.pem
+#  ca_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts/org2-ecert-ca.pem
+#
+#  echo "$(json_ccp 2 $peer_pem $ca_pem)" > build/application/gateway/org2_ccp.json
 
   pop_fn
 
@@ -65,12 +65,12 @@ function construct_application_configmap() {
   local cert=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/signcerts/cert.pem
   local pk=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/keystore/server.key
 
-  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/appuser_org1.id
+  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin.id
 
-  local cert=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/signcerts/cert.pem
-  local pk=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/keystore/server.key
-
-  echo "$(app_id Org2MSP $cert $pk)" > build/application/wallet/appuser_org2.id
+#  local cert=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/signcerts/cert.pem
+#  local pk=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/keystore/server.key
+#
+#  echo "$(app_id Org2MSP $cert $pk)" > build/application/wallet/appuser_org2.id
 
   pop_fn
 
@@ -86,9 +86,19 @@ function construct_application_configmap() {
 
   push_fn "Creating ConfigMap \"app-fabric-ccp-v1-map\" with ConnectionProfile for the application"
   kubectl -n $NS delete configmap app-fabric-ccp-v1-map || true
-  kubectl -n $NS create configmap app-fabric-ccp-v1-map --from-file=./build/application/gateways
+  kubectl -n $NS create configmap app-fabric-ccp-v1-map --from-file=./build/application/gateway
   pop_fn
 
+  push_fn "Creating ConfigMap \"app-fabric-org1-cacerts-v1-map\" with org1 cacert"
+  kubectl -n $NS delete configmap app-fabric-org1-cacerts-v1-map || true
+  kubectl -n $NS create configmap app-fabric-org1-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts
+  pop_fn
+  
+#  push_fn "Creating ConfigMap \"app-fabric-org2-cacerts-v1-map\" with org2 cacert"
+#  kubectl -n $NS delete configmap app-fabric-org2-cacerts-v1-map || true
+#  kubectl -n $NS create configmap app-fabric-org2-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts
+#  pop_fn
+  
   push_fn "Creating ConfigMap \"app-fabric-org1-v1-map\" with Organization 1 information for the application"
 
 cat <<EOF > build/app-fabric-org1-v1-map.yaml
@@ -100,10 +110,13 @@ data:
   fabric_channel: ${CHANNEL_NAME}
   fabric_contract: ${CHAINCODE_NAME}
   fabric_wallet_dir: /fabric/application/wallet
+  fabric_gateway_dir: /fabric/application/gateway
+  fabric_ccp_name: org1_ccp.json
   fabric_gateway_hostport: org1-peer-gateway-svc:7051
   fabric_gateway_sslHostOverride: org1-peer-gateway-svc
-  fabric_user: appuser_org1
+  fabric_app_admin: org1-admin
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/org1-tls-ca.pem
+  fabric_ca_cert: /fabric/cacerts/org1-ecert-ca.pem
 EOF
 
   kubectl -n $NS apply -f build/app-fabric-org1-v1-map.yaml
@@ -111,23 +124,24 @@ EOF
   # todo: could add the second org here
 
   pop_fn
+
 }
 
+function deploy_application() {
+  local app_image=$1
+  local redis_image=$2
+  push_fn "Launching application container \"${app_image}\""
+
+  cat kube/application-deployment.yaml \
+    | sed 's,{{APP_IMAGE}},'${app_image}',g' \
+    | sed 's,{{REDIS_IMAGE}},'${redis_image}',g' \
+    | exec kubectl -n $NS apply -f -
+
+  kubectl -n $NS rollout status deploy/application-deployment
+  pop_fn
+}
 
 function application_connection() {
-
  construct_application_configmap
-
-log
- log "For k8s applications:"
- log "Config Maps created for the application"
- log "To deploy your application updated the image name and issue these commands"
- log ""
- log "kubectl -n $NS apply -f kube/application-deployment.yaml"
- log "kubectl -n $NS rollout status deploy/application-deployment"
- log
- log "For non-k8s applications:"
- log "ConnectionPrfiles are in ${PWD}/build/application/gateways"
- log "Identities are in  ${PWD}/build/application/wallets"
- log
+ deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
 }

@@ -1,0 +1,13 @@
+FROM node:14-alpine3.14
+ENV NODE_ENV production
+WORKDIR /app
+
+RUN apk add --no-cache g++ make python3 dumb-init
+COPY --chown=node:node . /app
+
+EXPOSE 3000
+USER node
+
+ENTRYPOINT [ "dumb-init", "--", "npm", "run"]
+CMD ["dev"]
+#ENTRYPOINT ["tail", "-f", "/dev/null"]

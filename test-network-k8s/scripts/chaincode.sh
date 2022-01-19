@@ -82,9 +82,9 @@ function activate_chaincode_for() {
     chaincode approveformyorg \
     --channelID '${CHANNEL_NAME}' \
     --name '${CHAINCODE_NAME}' \
-    --version 1 \
+    --version '${CHAINCODE_VERSION}' \
     --package-id '${cc_id}' \
-    --sequence 1 \
+    --sequence '${CHAINCODE_VERSION}' \
     -o org0-orderer1:6050 \
     --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem
   
@@ -92,8 +92,8 @@ function activate_chaincode_for() {
     chaincode commit \
     --channelID '${CHANNEL_NAME}' \
     --name '${CHAINCODE_NAME}' \
-    --version 1 \
-    --sequence 1 \
+    --version '${CHAINCODE_VERSION}' \
+    --sequence '${CHAINCODE_VERSION}' \
     -o org0-orderer1:6050 \
     --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem
   ' | exec kubectl -n $NS exec deploy/${org}-admin-cli -c main -i -- /bin/bash
@@ -182,8 +182,8 @@ function deploy_chaincode() {
   set -x
 
   install_chaincode
-  launch_chaincode_service org1 $CHAINCODE_ID $CHAINCODE_IMAGE peer1
-  launch_chaincode_service org1 $CHAINCODE_ID $CHAINCODE_IMAGE peer2
+  launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1
+  launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer2
   activate_chaincode
 }
 
