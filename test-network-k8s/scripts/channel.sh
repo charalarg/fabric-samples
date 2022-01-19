@@ -199,3 +199,13 @@ function channel_up() {
   # this case to indicate that the call was made but had a nonzero exit. 
   # update_anchor_peers peer1
 }
+
+function channel_resume() {
+
+#  create_channel_MSP
+#  aggregate_channel_MSP
+  launch_admin_CLIs
+
+#  create_genesis_block
+#  join_peers
+}

@@ -9,10 +9,18 @@ kind: PersistentVolume
 metadata:
   name: fabric-org2
 spec:
-  storageClassName: standard
+  storageClassName: storage
   accessModes:
     - ReadWriteOnce
   capacity:
     storage: 2Gi
   hostPath:
     path: /var/hyperledger/org2.example.com
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage
+provisioner: rancher.io/local-path
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer

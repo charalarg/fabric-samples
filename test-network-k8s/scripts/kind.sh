@@ -25,7 +25,7 @@ function load_docker_images() {
   kind load docker-image ${FABRIC_CONTAINER_REGISTRY}/fabric-peer:$FABRIC_VERSION
   kind load docker-image ${FABRIC_CONTAINER_REGISTRY}/fabric-tools:$FABRIC_VERSION
   kind load docker-image ghcr.io/hyperledgendary/fabric-ccaas-asset-transfer-basic:latest
-  
+
   pop_fn 
 }
 
@@ -60,6 +60,9 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
+    extraMounts:
+      - hostPath: /home/charg/Documents/blockchain/fabric/fabric-samples/test-network-k8s
+        containerPath: /test-network-k8s
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration

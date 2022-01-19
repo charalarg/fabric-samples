@@ -29,14 +29,21 @@ NS=${TEST_NETWORK_KUBE_NAMESPACE:-${NETWORK_NAME}}
 CHANNEL_NAME=${TEST_NETWORK_CHANNEL_NAME:-mychannel}
 LOG_FILE=${TEST_NETWORK_LOG_FILE:-network.log}
 DEBUG_FILE=${TEST_NETWORK_DEBUG_FILE:-network-debug.log}
+LOCAL_REGISTRY_HOST=${TEST_NETWORK_LOCAL_REGISTRY_HOST:-localhost}
 LOCAL_REGISTRY_NAME=${TEST_NETWORK_LOCAL_REGISTRY_NAME:-kind-registry}
 LOCAL_REGISTRY_PORT=${TEST_NETWORK_LOCAL_REGISTRY_PORT:-5000}
 STAGE_DOCKER_IMAGES=${TEST_NETWORK_STAGE_DOCKER_IMAGES:-false}
 NGINX_HTTP_PORT=${TEST_NETWORK_INGRESS_HTTP_PORT:-80}
 NGINX_HTTPS_PORT=${TEST_NETWORK_INGRESS_HTTPS_PORT:-443}
-CHAINCODE_NAME=${TEST_NETWORK_CHAINCODE_NAME:-asset-transfer-basic}
-CHAINCODE_IMAGE=${TEST_NETWORK_CHAINCODE_IMAGE:-ghcr.io/hyperledgendary/fabric-ccaas-asset-transfer-basic:latest}
+CHAINCODE_VERSION=${TEST_NETWORK_CHAINCODE_VERSION:-4}
+CHAINCODE_NAME=${TEST_NETWORK_CHAINCODE_NAME:-document-notarization}
+CHAINCODE_IMAGE=${TEST_NETWORK_CHAINCODE_IMAGE:-document-notarization-cc:v${CHAINCODE_VERSION}}
 CHAINCODE_LABEL=${TEST_NETWORK_CHAINCODE_LABEL:-basic_1.0}
+APP_VERSION=${TEST_NETWORK_APP_VERSION:-9}
+APP_NAME=${TEST_NETWORK_APP_NAME:-document_notarization}
+APP_IMAGE=${TEST_NETWORK_APP_IMAGE:-document_notarization-app:v${APP_VERSION}}
+REDIS_IMAGE=${TEST_NETWORK_REDIS:-redis:6.2.5}
+COUCHDB_IMAGE=${TEST_NETWORK_COUCHDB_IMAGE:-couchdb:3.2.0}
 
 # todo: more complicated config, as these bleed into the yaml descriptors (sed? kustomize? helm (no)? tkn? ansible?...) or other script locations
 TLSADMIN_AUTH=tlsadmin:tlsadminpw
@@ -52,9 +59,10 @@ function print_help() {
   log "Channel name       \t\t: ${CHANNEL_NAME}"
   log
   log "--- Chaincode Information"
-  log "Chaincode name      \t\t: ${CHAINCODE_NAME}"
+  log "Chaincode name     \t\t: ${CHAINCODE_NAME}"
   log "Chaincode image      \t: ${CHAINCODE_IMAGE}"
   log "Chaincode label      \t: ${CHAINCODE_LABEL}"
+  log "Chaincode id         \t: ${CHAINCODE_ID}"
   log
   log "--- Cluster Information"
   log "Cluster name       \t\t: ${CLUSTER_NAME}"
@@ -128,6 +136,24 @@ elif [ "${MODE}" == "down" ]; then
   network_down
   log "🏁 - Fabric network is down."
 
+elif [ "${MODE}" == "resume" ]; then
+  log "Restoring test network  \"${NETWORK_NAME}\":"
+  network_resume
+  log "🏁 - Fabric network is up."
+
+elif [ "${MODE}" == "build-images" ]; then
+  ENV=$1
+  IMAGE=$2
+  shift 2
+
+  log "Building and pushing local images for cc and app"
+  CHAINCODE_VERSION=$@
+  APP_VERSION=$@
+  CHAINCODE_IMAGE=document-notarization-cc:v${CHAINCODE_VERSION}
+  APP_IMAGE=document-notarization-app:v${APP_VERSION}
+  build_and_push_images_locally ${ENV} ${IMAGE}
+  log "🏁 - Images was pushed to local registry."
+
 elif [ "${MODE}" == "channel" ]; then
   ACTION=$1
   shift
@@ -135,6 +161,11 @@ elif [ "${MODE}" == "channel" ]; then
   if [ "${ACTION}" == "create" ]; then
     log "Creating channel \"${CHANNEL_NAME}\":"
     channel_up
+    log "🏁 - Channel is ready."
+
+  elif [ "${ACTION}" == "resume" ]; then
+    log "Restoring channel \"${CHANNEL_NAME}\":"
+    channel_resume
     log "🏁 - Channel is ready."
 
   else
@@ -148,6 +179,8 @@ elif [ "${MODE}" == "chaincode" ]; then
 
   if [ "${ACTION}" == "deploy" ]; then
     log "Deploying chaincode \"${CHAINCODE_NAME}\":"
+    CHAINCODE_VERSION=$@
+    CHAINCODE_IMAGE=document-notarization-cc:v${CHAINCODE_VERSION}
     deploy_chaincode
     log "🏁 - Chaincode is ready."
 
@@ -179,13 +212,26 @@ elif [ "${MODE}" == "anchor" ]; then
 
 elif [ "${MODE}" == "rest-easy" ]; then
   log "Launching fabric-rest-sample application:"
+  APP_VERSION=$@
+  APP_IMAGE=document-notarization-app:v$@
   launch_rest_sample
   log "🏁 - Fabric REST sample is ready."
 
 elif [ "${MODE}" == "application" ]; then
-  log "Getting application connection information:"
-  application_connection
-  log "🏁 - Application connection information ready."
+  ACTION=$1
+  shift
+
+  if [ "${ACTION}" == "deploy" ]; then
+    log "Deploying application \"${APP_NAME}\":"
+    APP_VERSION=$@
+    APP_IMAGE=document-notarization-app:v${APP_VERSION}
+    application_connection
+    log "🏁 - Application is ready."
+  else
+    print_help
+    exit 1
+  fi
+
 
 else
   print_help

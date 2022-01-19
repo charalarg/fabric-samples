@@ -179,7 +179,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: ghcr.io/hyperledgendary/fabric-rest-sample
+          image: {{APP_IMAGE}}
           imagePullPolicy: IfNotPresent 
           env: 
             - name: LOG_LEVEL
@@ -219,7 +219,7 @@ spec:
           ports:
             - containerPort: 3000
         - name: redis
-          image: redis:6.2.5
+          image: {{REDIS_IMAGE}}
           ports:
             - containerPort: 6379
 
@@ -235,7 +235,6 @@ spec:
       protocol: TCP
   selector:
     app: fabric-rest-sample
-
 
 ---
 apiVersion: networking.k8s.io/v1

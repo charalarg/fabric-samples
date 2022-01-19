@@ -34,9 +34,9 @@ function load_org_config() {
   kubectl -n $NS delete configmap org1-config || true
   kubectl -n $NS delete configmap org2-config || true
 
-  kubectl -n $NS create configmap org0-config --from-file=config/org0
-  kubectl -n $NS create configmap org1-config --from-file=config/org1
-  kubectl -n $NS create configmap org2-config --from-file=config/org2
+  kubectl -n $NS create configmap org0-config --from-file=config/org0 || true
+  kubectl -n $NS create configmap org1-config --from-file=config/org1 || true
+  kubectl -n $NS create configmap org2-config --from-file=config/org2 || true
 
   pop_fn
 }

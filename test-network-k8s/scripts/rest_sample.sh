@@ -67,19 +67,25 @@ function ensure_rest_sample_image() {
   pop_fn 0
 }
 
-function rollout_rest_sample() {
-  push_fn "Starting fabric-rest-sample"
+function launch_application_service() {
+  local app_image=$1
+  local redis_image=$2
+  push_fn "Launching application container \"${app_image}\""
 
-  kubectl -n $NS apply -f kube/fabric-rest-sample.yaml
+  cat kube/fabric-rest-sample.yaml \
+    | sed 's,{{APP_IMAGE}},'${app_image}',g' \
+    | sed 's,{{REDIS_IMAGE}},'${redis_image}',g' \
+    | exec kubectl -n $NS apply -f -
+
   kubectl -n $NS rollout status deploy/fabric-rest-sample
 
   pop_fn
 }
 
+
 function launch_rest_sample() {
-  ensure_rest_sample_image
   construct_rest_sample_configmap
-  rollout_rest_sample
+  launch_application_service ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
 
   log ""
   log "The fabric-rest-sample has started.  See https://github.com/hyperledgendary/fabric-rest-sample/tree/main/asset-transfer-basic/rest-api-typescript#rest-api for additional usage."

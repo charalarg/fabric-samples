@@ -20,8 +20,10 @@ spec:
     spec:
       containers:
         - name: main
-          image: <image name goes here>
-          imagePullPolicy: Always 
+          image: {{APP_IMAGE}}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
           envFrom:
             - configMapRef:
                 name: app-fabric-org1-v1-map
@@ -33,10 +35,21 @@ spec:
             - name: fabricids
               mountPath: /fabric/application/wallet
             - name: fabric-ccp
-              mountPath: /fabric/application/gateways            
+              mountPath: /fabric/application/gateway
             - name: tlscerts
               mountPath: /fabric/tlscacerts
+            - name: cacerts
+              mountPath: /fabric/cacerts
+            - name: app-codebase
+              mountPath: /app
+        - name: redis
+          image: {{REDIS_IMAGE}}
+          ports:
+            - containerPort: 6379
       volumes:
+        - name: app-codebase
+          hostPath:
+            path: /test-network-k8s/application/document_notarization
         - name: fabric-ccp
           configMap:
             name: app-fabric-ccp-v1-map
@@ -46,3 +59,35 @@ spec:
         - name: tlscerts
           configMap:
             name: app-fabric-tls-v1-map
+        - name: cacerts
+          configMap:
+            name: app-fabric-org1-cacerts-v1-map
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-deployment
+spec:
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+  selector:
+    app: application-deployment
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: application-deployment
+spec:
+  rules:
+    - http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: application-deployment
+                port:
+                  number: 3000
