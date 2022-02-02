@@ -1,14 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { loadUserIdentity } from '../fabric';
+import { loadUserIdentity } from '../services/fabric.service';
 
-export const loadIdentity = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<unknown> => {
+export const loadIdentity = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
   const user = req.user as Record<string, unknown>;
   const userId = user.userId as string;
-  const userIdentity = await loadUserIdentity(userId);
-  res.locals.userIdentity = userIdentity;
+  res.locals.userIdentity = await loadUserIdentity(userId);
   return next();
 };

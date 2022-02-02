@@ -2,16 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 
-const { BAD_REQUEST } = StatusCodes;
+const { BAD_REQUEST, NOT_FOUND } = StatusCodes;
 
-export const validateStructure = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+export const internalServerError = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
     return res.status(BAD_REQUEST).json({
       status: getReasonPhrase(BAD_REQUEST),
-      reason: 'VALIDATION_ERROR',
-      message: 'Invalid request body',
+      message: 'Not found',
       timestamp: new Date().toISOString(),
       errors: result.array(),
     });
@@ -20,16 +19,17 @@ export const validateStructure = async (req: Request, res: Response, next: NextF
   return next();
 };
 
-export const validateJson = (req: Request, res: Response, buf: Buffer): unknown => {
-  try {
-    JSON.parse(buf.toString());
-  } catch (e) {
-    return res.status(BAD_REQUEST).json({
-      status: getReasonPhrase(BAD_REQUEST),
-      reason: 'VALIDATION_ERROR',
+export const notFoundError = async (req: Request, res: Response, next: NextFunction): Promise<unknown> => {
+  const result = validationResult(req);
+
+  if (!result.isEmpty()) {
+    return res.status(NOT_FOUND).json({
+      status: getReasonPhrase(NOT_FOUND),
       message: 'Invalid request body',
       timestamp: new Date().toISOString(),
-      errors: 'Wrong JSON format',
+      errors: result.array(),
     });
   }
+
+  return next();
 };

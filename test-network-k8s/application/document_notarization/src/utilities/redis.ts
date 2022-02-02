@@ -6,7 +6,7 @@
 
 import IORedis, { Redis, RedisOptions } from 'ioredis';
 
-import * as config from './config';
+import * as config from '../config/config';
 import { logger } from './logger';
 
 /*
@@ -15,23 +15,21 @@ import { logger } from './logger';
  * BullMQ requires this setting in redis
  * For details, see: https://docs.bullmq.io/guide/connections
  */
+
+export const redisOptions = {
+  port: config.redisPort,
+  host: config.redisHost,
+  username: config.redisUsername,
+  password: config.redisPassword,
+};
+
 export const isMaxmemoryPolicyNoeviction = async (): Promise<boolean> => {
   let redis: Redis | undefined;
 
-  const redisOptions: RedisOptions = {
-    port: config.redisPort,
-    host: config.redisHost,
-    username: config.redisUsername,
-    password: config.redisPassword,
-  };
-
   try {
-    redis = new IORedis(redisOptions);
+    redis = new IORedis(redisOptions as RedisOptions);
 
-    const maxmemoryPolicyConfig = await (redis as Redis).config(
-      'GET',
-      'maxmemory-policy'
-    );
+    const maxmemoryPolicyConfig = await (redis as Redis).config('GET', 'maxmemory-policy');
     logger.debug({ maxmemoryPolicyConfig }, 'Got maxmemory-policy config');
 
     if (

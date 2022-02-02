@@ -8,15 +8,15 @@ import {
   DefaultQueryHandlerStrategies,
   Gateway,
   GatewayOptions,
-  Wallets,
+  Identity,
   Network,
   Transaction,
   Wallet,
-  Identity,
+  Wallets,
 } from 'fabric-network';
-import * as config from './config';
-import { logger } from './logger';
-import { handleError } from './errors';
+import * as config from '../config/config';
+import { logger } from '../utilities/logger';
+import { handleError } from '../utilities/errors';
 import * as protos from 'fabric-protos';
 import yaml from 'js-yaml';
 import fs from 'fs';
@@ -44,9 +44,19 @@ export const loadUserIdentityFromFS = async (user: string): Promise<Record<strin
   return userIdentity;
 };
 
+export const loadContracts = async (): Promise<{
+  docNotarizationContract: Contract;
+  qsccContract: Contract;
+}> => {
+  const adminWallet = await loadUserWallet();
+  const org1CCP = buildCCP();
+  const AdminGateway = await createGateway(org1CCP, config.fabricAppAdmin, adminWallet);
+  const networkOrg = await getNetwork(AdminGateway);
+  return await getContracts(networkOrg);
+};
+
 export const loadUserWallet = async (): Promise<Wallet> => {
-  const userWallet = await Wallets.newFileSystemWallet(config.fabricWalletDir);
-  return userWallet;
+  return await Wallets.newFileSystemWallet(config.fabricWalletDir);
 };
 
 // export const buildCaClient = (ccp: Record<string, unknown>): FabricCAServices => {
@@ -146,8 +156,7 @@ export const createGateway = async (
  * start a block event listener
  */
 export const getNetwork = async (gateway: Gateway): Promise<Network> => {
-  const network = await gateway.getNetwork(config.channelName);
-  return network;
+  return await gateway.getNetwork(config.channelName);
 };
 
 /*

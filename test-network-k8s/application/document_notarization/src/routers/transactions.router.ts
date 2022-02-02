@@ -5,9 +5,9 @@
 import express, { Request, Response } from 'express';
 import { Contract } from 'fabric-network';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
-import { getTransactionValidationCode } from '../fabric';
-import { logger } from '../logger';
-import { TransactionNotFoundError } from '../errors';
+import { getTransactionValidationCode } from '../services/fabric.service';
+import { logger } from '../utilities/logger';
+import { TransactionNotFoundError } from '../utilities/errors';
 
 const { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } = StatusCodes;
 

@@ -66,7 +66,7 @@
     "generateEnv": "./scripts/generateEnv.sh",
     "lint": "eslint . --ext .ts",
     "start": "node --require source-map-support/register ./dist",
-    "dev": "node --loader ts-node/esm ./src/index.ts",
+    "dev": "node --loader ts-node/esm src/server.ts",
     "start:dotenv": "node --require source-map-support/register --require dotenv/config ./dist",
     "start:dev": "node --require source-map-support/register --require dotenv/config ./dist | pino-pretty",
     "start:redis": "docker run -p 6379:6379 --name fabric-sample-redis -d redis --maxmemory-policy noeviction",

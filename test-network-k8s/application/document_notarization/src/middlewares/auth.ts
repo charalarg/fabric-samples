@@ -5,12 +5,12 @@
 import passport from 'passport';
 import { NextFunction, Request, Response } from 'express';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
-import { StatusCodes, getReasonPhrase } from 'http-status-codes';
-import * as config from '../config';
+import { getReasonPhrase, StatusCodes } from 'http-status-codes';
+import * as config from '../config/config';
 import { Identity } from 'fabric-network';
 import * as jwt from 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
-import { logger } from '../logger';
+import { logger } from '../utilities/logger';
 
 const { UNAUTHORIZED } = StatusCodes;
 
@@ -53,12 +53,11 @@ export const authenticateApiKey = (req: Request, res: Response, next: NextFuncti
 };
 
 export const generateAuthToken = async (userId: string, userIdentity: Identity | ''): Promise<string> => {
-  const token = jwt.sign(
+  return jwt.sign(
     {
       userId: userId,
       mspId: userIdentity ? userIdentity.mspId : undefined,
     },
     config.JwtSecret
   );
-  return token;
 };

@@ -6,12 +6,18 @@
  */
 
 import { ConnectionOptions, Job, Queue, QueueScheduler, Worker } from 'bullmq';
-import { Application } from 'express';
 import { Contract, Transaction } from 'fabric-network';
-import * as config from './config';
-import { getRetryAction, RetryAction } from './errors';
-import { submitTransaction } from './fabric';
-import { logger } from './logger';
+import * as config from '../config/config';
+import { getRetryAction, RetryAction } from '../utilities/errors';
+import { submitTransaction } from './fabric.service';
+import { logger } from '../utilities/logger';
+import { redisOptions } from '../utilities/redis';
+
+export const connection = redisOptions as ConnectionOptions;
+
+let jobQueue: Queue | undefined;
+let jobQueueWorker: Worker | undefined;
+let jobQueueScheduler: QueueScheduler | undefined;
 
 export type JobData = {
   mspid: string;
@@ -46,15 +52,8 @@ export class JobNotFoundError extends Error {
   }
 }
 
-const connection: ConnectionOptions = {
-  port: config.redisPort,
-  host: config.redisHost,
-  username: config.redisUsername,
-  password: config.redisPassword,
-};
-
 export const initJobQueue = (): Queue => {
-  const submitQueue = new Queue(config.JOB_QUEUE_NAME, {
+  return new Queue(config.JOB_QUEUE_NAME, {
     connection,
     defaultJobOptions: {
       attempts: config.submitJobAttempts,
@@ -66,15 +65,13 @@ export const initJobQueue = (): Queue => {
       removeOnFail: config.maxFailedSubmitJobs,
     },
   });
-
-  return submitQueue;
 };
 
-export const initJobQueueWorker = (app: Application): Worker => {
+export const initJobQueueWorker = (docNotarizationContract: Contract): Worker => {
   const worker = new Worker<JobData, JobResult>(
     config.JOB_QUEUE_NAME,
     async (job): Promise<JobResult> => {
-      return await processSubmitTransactionJob(app, job);
+      return await processSubmitTransactionJob(docNotarizationContract, job);
     },
     { connection, concurrency: config.submitJobConcurrency }
   );
@@ -165,14 +162,12 @@ export const getJobSummary = async (queue: Queue, jobId: string): Promise<JobSum
     }
   }
 
-  const jobSummary: JobSummary = {
+  return {
     jobId: job.id,
     transactionIds,
     transactionError,
     transactionPayload,
   };
-
-  return jobSummary;
 };
 
 export const updateJobData = async (
@@ -182,8 +177,7 @@ export const updateJobData = async (
   const newData = { ...job.data };
 
   if (transaction != undefined) {
-    const transationIds = ([] as string[]).concat(newData.transactionIds, transaction.getTransactionId());
-    newData.transactionIds = transationIds;
+    newData.transactionIds = ([] as string[]).concat(newData.transactionIds, transaction.getTransactionId());
 
     newData.transactionState = transaction.serialize();
   } else {
@@ -211,12 +205,11 @@ export const getJobCounts = async (queue: Queue): Promise<{ [index: string]: num
  * The job will be retried if this function throws an error
  */
 export const processSubmitTransactionJob = async (
-  app: Application,
+  docNotarizationContract: Contract,
   job: Job<JobData, JobResult>
 ): Promise<JobResult> => {
   logger.debug({ jobId: job.id, jobName: job.name }, 'Processing job');
-  const contract = app.locals[job.data.mspid]?.docNotarizationContract as Contract;
-  if (contract === undefined) {
+  if (docNotarizationContract === undefined) {
     logger.error({ jobId: job.id, jobName: job.name }, 'Contract not found for MSP ID %s', job.data.mspid);
 
     // Retrying will never work without a contract, so give up with an
@@ -241,7 +234,7 @@ export const processSubmitTransactionJob = async (
       'Reusing previously saved transaction state'
     );
 
-    transaction = contract.deserializeTransaction(savedState);
+    transaction = docNotarizationContract.deserializeTransaction(savedState);
   } else {
     logger.debug(
       {
@@ -251,7 +244,7 @@ export const processSubmitTransactionJob = async (
       'Using new transaction'
     );
 
-    transaction = contract.createTransaction(job.data.transactionName);
+    transaction = docNotarizationContract.createTransaction(job.data.transactionName);
     await updateJobData(job, transaction);
   }
 
@@ -293,5 +286,31 @@ export const processSubmitTransactionJob = async (
 
     // Rethrow the error to keep retrying
     throw err;
+  }
+};
+
+export const initJobs = async (docNotarizationContract: Contract): Promise<Queue> => {
+  jobQueue = initJobQueue();
+  jobQueueWorker = initJobQueueWorker(docNotarizationContract);
+  if (config.submitJobQueueScheduler) {
+    jobQueueScheduler = initJobQueueScheduler();
+  }
+  return jobQueue;
+};
+
+export const cleanUp = async (): Promise<void> => {
+  if (jobQueueScheduler != undefined) {
+    logger.debug('Closing job queue scheduler');
+    await jobQueueScheduler.close();
+  }
+
+  if (jobQueueWorker != undefined) {
+    logger.debug('Closing job queue worker');
+    await jobQueueWorker.close();
+  }
+
+  if (jobQueue != undefined) {
+    logger.debug('Closing job queue');
+    await jobQueue.close();
   }
 };

@@ -44,7 +44,7 @@ function launch_peers() {
   kubectl -n $NS rollout status deploy/org2-peer2
 
   # Port forward for couchDB UI
-#  kubectl -n $NS port-forward deploy/org1-peer1 5984:5984 &
+  kubectl -n $NS port-forward deploy/org1-peer1 5984:5984 &
   pop_fn
 }
 
@@ -226,7 +226,7 @@ function build_and_push_images_locally() {
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
   elif [ "${image}" == "app" ]; then
       docker rmi $(docker images | grep ${APP_NAME}) --force || true
-      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME}
+      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME} --no-cache
       docker tag ${APP_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
   fi

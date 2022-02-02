@@ -21,16 +21,16 @@ import express, { Request, Response } from 'express';
 import { body } from 'express-validator';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 import { Queue } from 'bullmq';
-import { addSubmitTransactionJob } from '../jobs';
-import { logger } from '../logger';
-import { evatuateTransaction, loadUserIdentityFromFS } from '../fabric';
+import { addSubmitTransactionJob } from '../services/jobs.service';
+import { logger } from '../utilities/logger';
+import { evatuateTransaction, loadUserIdentityFromFS } from '../services/fabric.service';
 import { Contract } from 'fabric-network';
-import { AssetNotFoundError } from '../errors';
+import { AssetNotFoundError } from '../utilities/errors';
 import { validateStructure } from '../middlewares/validate';
 import { loadIdentity } from '../middlewares/wallet';
 import { KJUR, KEYUTIL, X509 } from 'jsrsasign';
 import fs from 'fs';
-import * as config from '../config';
+import * as config from '../config/config';
 
 const { ACCEPTED, INTERNAL_SERVER_ERROR, OK, NOT_FOUND } = StatusCodes;
 

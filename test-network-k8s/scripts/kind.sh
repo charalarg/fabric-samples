@@ -61,7 +61,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
     extraMounts:
-      - hostPath: /home/charg/Documents/blockchain/fabric/fabric-samples/test-network-k8s
+      - hostPath: /home/charg/Documents/blockchain/research/fabric-samples/test-network-k8s
         containerPath: /test-network-k8s
     kubeadmConfigPatches:
       - |

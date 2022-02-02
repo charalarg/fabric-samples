@@ -23,10 +23,10 @@ The connections are made when the application starts and are retained for the li
 
 Related files:
 
-- [src/fabric.ts](src/fabric.ts)  
+- [src/fabric.service.ts](src/fabric.ts)  
   All the sample code which interacts with the Fabric network via the Fabric SDK.
   For example, the `createGateway` function which connects to the Fabric network.
-- [src/index.ts](src/index.ts)  
+- [src/index_old.ts](src/index.ts)  
   The primary entry point for the sample.
   Connects to the Fabric network and starts the REST server.
 
@@ -60,11 +60,11 @@ Jobs are not used to get assets, because evaluating transactions is typically mu
 Related files:
 - [src/asset.router.ts](src/asset.router.ts)  
   Defines the main `/api/assets` endpoint.
-- [src/fabric.ts](src/fabric.ts)  
+- [src/fabric.service.ts](src/fabric.ts)  
   All the sample code which interacts with the Fabric network via the Fabric SDK.
 - [src/jobs.router.ts](src/jobs.router.ts)  
   Defines the `/api/jobs` endpoint for getting job status.
-- [src/jobs.ts](src/jobs.ts)
+- [src/jobs.service.ts](src/jobs.ts)
   Job queue implementation details.
 - [src/transactions.router.ts]()  
   Defines the `/api/transactions` endpoint for getting transaction status.
@@ -79,7 +79,7 @@ The remaining sample files are related to the REST server aspects of the sample,
   Basic API key authentication strategy used for the sample.
 - [src/config.ts](src/config.ts)  
   Descriptions of all the available configuration environment variables.
-- [src/jobs.ts](src/jobs.ts)  
+- [src/jobs.service.ts](src/jobs.ts)  
   Job queue implementation details.
 - [src/logger.ts](src/logger.ts)  
   Logging implementation details.

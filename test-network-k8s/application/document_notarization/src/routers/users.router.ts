@@ -20,15 +20,15 @@
 import express, { Request, Response } from 'express';
 import { body } from 'express-validator';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
-import { logger } from '../logger';
+import { logger } from '../utilities/logger';
 import { validateStructure } from '../middlewares/validate';
-import { loadUserIdentity } from '../fabric';
+import { loadUserIdentity } from '../services/fabric.service';
 import { Md5 } from 'ts-md5';
 import { generateAuthToken } from '../middlewares/auth';
 import { loadIdentity } from '../middlewares/wallet';
 import { KJUR } from 'jsrsasign';
 import { Queue } from 'bullmq';
-import { addSubmitTransactionJob } from '../jobs';
+import { addSubmitTransactionJob } from '../services/jobs.service';
 import { documentsRouter } from './documents.router';
 const { ACCEPTED, INTERNAL_SERVER_ERROR, UNAUTHORIZED } = StatusCodes;
 export const usersRouter = express.Router();
