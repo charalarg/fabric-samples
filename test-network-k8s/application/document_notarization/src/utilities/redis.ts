@@ -23,7 +23,7 @@ export const redisOptions = {
   password: config.redisPassword,
 };
 
-export const isMaxmemoryPolicyNoeviction = async (): Promise<boolean> => {
+export const isMaxMemoryPolicyNoEviction = async (): Promise<boolean> => {
   let redis: Redis | undefined;
 
   try {

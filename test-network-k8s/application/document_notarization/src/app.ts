@@ -5,16 +5,13 @@ import { loggerMiddleware } from './utilities/logger';
 import { validateJson } from './middlewares/validate';
 import fileUpload from 'express-fileupload';
 import passport from 'passport';
-import { authenticateApiKey, fabricAPIKeyStrategy } from './middlewares/auth';
+import { fabricAPIKeyStrategy } from './middlewares/auth';
 import { internalServerError, notFoundError } from './middlewares/error';
-import { healthRouter } from './routers/health.router';
-import { usersRouter } from './routers/users.router';
-import { jobsRouter } from './routers/jobs.router';
-import { documentsRouter } from './routers/documents.router';
-import { transactionsRouter } from './routers/transactions.router';
 import { logger } from './utilities/logger';
 import { loadContracts } from './services/fabric.service';
-import { cleanUp, initJobs } from './services/jobs.service';
+import { isMaxMemoryPolicyNoEviction } from './utilities/redis';
+import Routes from './routers/index.router';
+import { initJobs } from './services/jobs.service';
 
 class App {
   public app: express.Application;
@@ -62,11 +59,7 @@ class App {
   }
 
   private initializeRoutes() {
-    this.app.use('/', healthRouter);
-    this.app.use('/api/users', usersRouter);
-    this.app.use('/api/jobs', authenticateApiKey, jobsRouter);
-    this.app.use('/api/documents', authenticateApiKey, documentsRouter);
-    this.app.use('/api/transactions', authenticateApiKey, transactionsRouter);
+    this.app.use('/', new Routes().router);
   }
 
   private initializeMiddlewares() {
@@ -83,10 +76,14 @@ class App {
 
   private async initializeContracts() {
     this.app.locals[config.MSPID] = await loadContracts();
-    logger.info('------------' + this.app.locals[config.MSPID].docNotarizationContract);
   }
 
   private async initializeJobs() {
+    if (!(await isMaxMemoryPolicyNoEviction())) {
+      throw new Error(
+        'Invalid redis configuration: redis instance must have the setting maxmemory-policy=noeviction'
+      );
+    }
     this.app.locals.jobq = await initJobs(this.app.locals[config.MSPID]?.docNotarizationContract);
   }
 
@@ -106,10 +103,5 @@ class App {
   //   this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
   // }
 }
-
-process.on('uncaughtException', async function (exception) {
-  console.log(exception);
-  await cleanUp();
-});
 
 export default App;
