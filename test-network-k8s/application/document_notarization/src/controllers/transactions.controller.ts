@@ -14,7 +14,6 @@ class TransactionsController {
 
     try {
       const qsccContract = req.app.locals[mspId]?.qsccContract as Contract;
-
       const validationCode = await getTransactionValidationCode(qsccContract, transactionId);
 
       return res.status(OK).json({

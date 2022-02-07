@@ -1,9 +1,3 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- *
- * This sample uses the BullMQ queue system, which is built on top of Redis
- */
-
 import IORedis, { Redis, RedisOptions } from 'ioredis';
 
 import * as config from '../config/config';
@@ -30,7 +24,6 @@ export const isMaxMemoryPolicyNoEviction = async (): Promise<boolean> => {
     redis = new IORedis(redisOptions as RedisOptions);
 
     const maxmemoryPolicyConfig = await (redis as Redis).config('GET', 'maxmemory-policy');
-    logger.debug({ maxmemoryPolicyConfig }, 'Got maxmemory-policy config');
 
     if (
       maxmemoryPolicyConfig.length == 2 &&
