@@ -6,7 +6,6 @@
 #
 
 function package_chaincode_for() {
-  local org=$1
   local cc_folder="chaincode/${CHAINCODE_NAME}"
   local build_folder="build/chaincode"
   local cc_archive="${build_folder}/${CHAINCODE_NAME}.tgz"
@@ -87,7 +86,20 @@ function activate_chaincode_for() {
     --sequence '${CHAINCODE_VERSION}' \
     -o org0-orderer1:6050 \
     --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem
-  
+  ' | exec kubectl -n $NS exec deploy/${org}-admin-cli -c main -i -- /bin/bash
+
+  pop_fn
+}
+
+
+function commit_chaincode(){
+  local org=$1
+  local cc_id=$2
+  push_fn "Commiting chaincode ${CHAINCODE_ID}"
+
+  echo 'set -x
+  export CORE_PEER_ADDRESS='${org}'-peer1:7051
+
   peer lifecycle \
     chaincode commit \
     --channelID '${CHANNEL_NAME}' \
@@ -159,9 +171,9 @@ function set_chaincode_id() {
 
 # Package and install the chaincode, but do not activate.
 function install_chaincode() {
-  local org=org1
+  local org=$1
 
-  package_chaincode_for ${org}
+  package_chaincode_for
   transfer_chaincode_archive_for ${org}
   install_chaincode_for ${org} peer1
   install_chaincode_for ${org} peer2
@@ -171,19 +183,26 @@ function install_chaincode() {
 
 # Activate the installed chaincode but do not package/install a new archive.
 function activate_chaincode() {
-  set -x
+  local org=$1
 
   set_chaincode_id
-  activate_chaincode_for org1 $CHAINCODE_ID
+  activate_chaincode_for ${org} $CHAINCODE_ID
 }
 
 # Install, launch, and activate the chaincode
 function deploy_chaincode() {
   set -x
 
-  install_chaincode
+  install_chaincode org1
+  install_chaincode org2
   launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1
   launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer2
-  activate_chaincode
+  launch_chaincode_service org2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1
+  launch_chaincode_service org2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer2
+  activate_chaincode org1
+  activate_chaincode org2
+
+  #only needs for one org
+  commit_chaincode org1 $CHAINCODE_ID
 }
 
