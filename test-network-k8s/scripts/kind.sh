@@ -41,6 +41,19 @@ function apply_nginx_ingress() {
   pop_fn
 }
 
+function install_cert_manager() {
+  push_fn "Installing cert-manager"
+
+    # Install cert-manager to manage TLS certificates
+  kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
+
+  kubectl -n cert-manager rollout status deploy/cert-manager
+  kubectl -n cert-manager rollout status deploy/cert-manager-cainjector
+  kubectl -n cert-manager rollout status deploy/cert-manager-webhook
+
+  pop_fn
+}
+
 function kind_create() {
   push_fn  "Creating cluster \"${CLUSTER_NAME}\""
 
@@ -140,6 +153,7 @@ function kind_init() {
 
   kind_create
   apply_nginx_ingress
+  install_cert_manager
   launch_docker_registry
 
   if [ "${STAGE_DOCKER_IMAGES}" == true ]; then

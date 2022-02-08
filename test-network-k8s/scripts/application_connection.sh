@@ -8,11 +8,11 @@
 function app_extract_MSP_archives() {
   mkdir -p build/msp
   set -ex
-  kubectl -n $NS exec deploy/org1-ecert-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org1.example.com/msp | tar zxf - -C build/msp
-  kubectl -n $NS exec deploy/org2-ecert-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org2.example.com/msp | tar zxf - -C build/msp
+  kubectl -n $NS exec deploy/org1-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org1.example.com/msp | tar zxf - -C build/msp
+  kubectl -n $NS exec deploy/org2-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org2.example.com/msp | tar zxf - -C build/msp
 
-  kubectl -n $NS exec deploy/org1-ecert-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp | tar zxf - -C build/msp
-  kubectl -n $NS exec deploy/org2-ecert-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp | tar zxf - -C build/msp
+  kubectl -n $NS exec deploy/org1-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp | tar zxf - -C build/msp
+  kubectl -n $NS exec deploy/org2-ca -- tar zcf - -C /var/hyperledger/fabric organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp | tar zxf - -C build/msp
 }
 
 function app_one_line_pem {
@@ -49,14 +49,14 @@ function construct_application_configmap() {
   mkdir -p build/application/gateway
   
   local peer_pem=build/msp/organizations/peerOrganizations/org1.example.com/msp/tlscacerts/org1-tls-ca.pem
-  local ca_pem=build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts/org1-ecert-ca.pem
+  local ca_pem=build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts/org1-ca.pem
 
   echo "$(json_ccp 1 $peer_pem $ca_pem)" > build/application/gateway/org1_ccp.json
   
 #  peer_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/tlscacerts/org2-tls-ca.pem
-#  ca_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts/org2-ecert-ca.pem
+#  ca_pem=build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts/org2-ca.pem
 #
-#  echo "$(json_ccp 2 $peer_pem $ca_pem)" > build/application/gateway/org2_ccp.json
+#  echo "$(json_ccp 2 $peer_pem $ca_pem)" > build/application/gateways/org2_ccp.json
 
   pop_fn
 
@@ -93,12 +93,12 @@ function construct_application_configmap() {
   kubectl -n $NS delete configmap app-fabric-org1-cacerts-v1-map || true
   kubectl -n $NS create configmap app-fabric-org1-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts
   pop_fn
-  
+
 #  push_fn "Creating ConfigMap \"app-fabric-org2-cacerts-v1-map\" with org2 cacert"
 #  kubectl -n $NS delete configmap app-fabric-org2-cacerts-v1-map || true
 #  kubectl -n $NS create configmap app-fabric-org2-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts
 #  pop_fn
-  
+
   push_fn "Creating ConfigMap \"app-fabric-org1-v1-map\" with Organization 1 information for the application"
 
 cat <<EOF > build/app-fabric-org1-v1-map.yaml
@@ -116,7 +116,7 @@ data:
   fabric_gateway_sslHostOverride: org1-peer-gateway-svc
   fabric_app_admin: org1-admin
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/org1-tls-ca.pem
-  fabric_ca_cert: /fabric/cacerts/org1-ecert-ca.pem
+  fabric_ca_cert: /fabric/cacerts/org1-ca.pem
 EOF
 
   kubectl -n $NS apply -f build/app-fabric-org1-v1-map.yaml
