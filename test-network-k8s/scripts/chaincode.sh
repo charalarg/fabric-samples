@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-function package_chaincode_for() {
+function package_chaincode() {
   local cc_folder="chaincode/${CHAINCODE_NAME}"
   local build_folder="build/chaincode"
   local cc_archive="${build_folder}/${CHAINCODE_NAME}.tgz"
@@ -173,7 +173,6 @@ function set_chaincode_id() {
 function install_chaincode() {
   local org=$1
 
-  package_chaincode_for
   transfer_chaincode_archive_for ${org}
   install_chaincode_for ${org} peer1
   install_chaincode_for ${org} peer2
@@ -193,6 +192,7 @@ function activate_chaincode() {
 function deploy_chaincode() {
   set -x
 
+  package_chaincode
   install_chaincode org1
   install_chaincode org2
   launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1

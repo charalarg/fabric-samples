@@ -26,7 +26,7 @@ function json_ccp {
   sed -e "s/\${ORG}/$ORG/" \
       -e "s#\${PEERPEM}#$PP#" \
       -e "s#\${CAPEM}#$CP#" \
-      scripts/ccp-template.json
+      scripts/ccp_template_gateway_svc.json
 }
 
 function app_id {

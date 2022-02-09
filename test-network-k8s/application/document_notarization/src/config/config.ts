@@ -18,7 +18,7 @@ import * as env from 'env-var';
 export const ORG = 'Org1';
 export const JOB_QUEUE_NAME = 'submit';
 export const MSPID = ORG + 'MSP';
-export const caHostName = 'org1-ecert-ca';
+export const caHostName = 'org1-ca';
 export const JwtSecret = 'FB8D522BD9B6C38D4C8EC2D7A04BC3FF3A54';
 export const maxFileSize = 50 * 1024 * 1024;
 /*
@@ -138,8 +138,8 @@ export const fabricGatewayTlsCertPath = env
 
 export const fabricCaCertPath = env
   .get('fabric_ca_cert')
-  .default('/fabric/cacerts/org1-ecert-ca.pem')
-  .example('/fabric/cacerts/org1-ecert-ca.pem')
+  .default('/fabric/cacerts/org1-ca.pem')
+  .example('/fabric/cacerts/org1-ca.pem')
   .asString();
 
 export const fabricGatewayHostport = env

@@ -17,6 +17,7 @@ spec:
   dnsNames:
     - localhost
     - org1-peer2
+    - org1-peer-gateway-svc
     - org1-peer2.test-network.svc.cluster.local
   ipAddresses:
     - 127.0.0.1
@@ -87,6 +88,9 @@ spec:
               mountPath: /var/hyperledger
             - name: fabric-config
               mountPath: /var/hyperledger/fabric/config
+            - name: tls-cert-volume
+              mountPath: /var/hyperledger/fabric/config/tls
+              readOnly: true
         - name: ledger
           image: couchdb:3.1.1
           env:
@@ -100,9 +104,6 @@ spec:
             - name: fabric-volume
               mountPath: /opt/couchdb/data
               subPath: state/org1/peer2-couchdb
-            - name: tls-cert-volume
-              mountPath: /var/hyperledger/fabric/config/tls
-              readOnly: true
       volumes:
         - name: fabric-volume
           persistentVolumeClaim:
