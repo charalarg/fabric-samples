@@ -1,7 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { validateStructure } from '../middlewares/validate';
-import { loadIdentity } from '../middlewares/wallet';
 import { authenticateApiKey } from '../middlewares/auth';
 import DocumentsController from '../controllers/documents.controller';
 
@@ -20,7 +19,6 @@ class DocumentsRouter {
       authenticateApiKey,
       body().isObject().withMessage('body must contain an document object'),
       validateStructure,
-      loadIdentity,
       this.documentsController.createDocument
     );
 
@@ -29,7 +27,6 @@ class DocumentsRouter {
       authenticateApiKey,
       body().isObject().withMessage('body must contain an document object'),
       validateStructure,
-      loadIdentity,
       this.documentsController.validateDocument
     );
 

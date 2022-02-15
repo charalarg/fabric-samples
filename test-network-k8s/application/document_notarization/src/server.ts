@@ -1,11 +1,12 @@
 import App from './app';
-import { cleanUp } from './services/jobs.service';
+import Redis from './services/redis.service';
 
 const app = new App();
+await app.init();
 
 app.listen();
 
 process.on('uncaughtException', async function (exception) {
   console.log(exception);
-  await cleanUp();
+  await Redis.getInstance().cleanUp();
 });

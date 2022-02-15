@@ -11,7 +11,7 @@ class QueryUtils {
         this.name = listName;
     }
 
-    async queryDocument(hash, issuer) {
+    async queryDocument(hash) {
         let self = this;
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting document hash.');
@@ -19,9 +19,9 @@ class QueryUtils {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.hash = hash;
-        if (issuer) {
-            queryString.selector.issuer = issuer;
-        }
+        // if (issuer) {
+        //     queryString.selector.issuer = issuer;
+        // }
 
         let method = self.getQueryResultForQueryString;
         return await method(this.ctx, self, JSON.stringify(queryString));

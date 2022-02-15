@@ -65,7 +65,7 @@ function construct_application_configmap() {
   local cert=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/signcerts/cert.pem
   local pk=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/keystore/server.key
 
-  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin.id
+  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin/.id
 
 #  local cert=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/signcerts/cert.pem
 #  local pk=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/keystore/server.key
@@ -112,11 +112,12 @@ data:
   fabric_wallet_dir: /fabric/application/wallet
   fabric_gateway_dir: /fabric/application/gateway
   fabric_ccp_name: org1_ccp.json
-  fabric_gateway_hostport: org1-peer-gateway-svc:7051
-  fabric_gateway_sslHostOverride: org1-peer-gateway-svc
   fabric_app_admin: org1-admin
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/org1-tls-ca.pem
   fabric_ca_cert: /fabric/cacerts/org1-ca.pem
+  ca_host_name: org1-ca
+  org: Org1
+  mspid: Org1MSP
 EOF
 
   kubectl -n $NS apply -f build/app-fabric-org1-v1-map.yaml

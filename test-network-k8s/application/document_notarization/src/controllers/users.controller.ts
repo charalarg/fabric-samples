@@ -2,23 +2,27 @@ import { logger } from '../utilities/logger';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 const { INTERNAL_SERVER_ERROR, ACCEPTED, UNAUTHORIZED } = StatusCodes;
 import { Request, Response } from 'express';
-import { loadUserIdentity } from '../services/fabric.service';
-import { Md5 } from 'ts-md5';
 import { generateAuthToken } from '../middlewares/auth';
+import User from '../services/users.service';
+import * as config from '../config/config';
 
 class UsersController {
+  private user: User | undefined;
+
+  constructor() {
+    this.user = undefined;
+  }
+
   public login = async (req: Request, res: Response) => {
     const userId = req.body.userId;
     const password = req.body.password;
 
     try {
-      const userIdentity = (await loadUserIdentity(userId)) || '';
-
-      const hashedIdentity = Md5.hashStr(JSON.stringify(userIdentity));
-      logger.info(hashedIdentity);
-
-      if (hashedIdentity == password) {
-        const token = await generateAuthToken(userId, userIdentity);
+      // TODO auta prepei na elegxontai apo mia DB
+      if (password == 'x' && config.mspid == 'Org1MSP') {
+        const user = new User(userId, config.mspid);
+        await user.init();
+        const token = await generateAuthToken(userId);
 
         return res.status(ACCEPTED).json({
           status: getReasonPhrase(ACCEPTED),

@@ -7,20 +7,23 @@ import { NextFunction, Request, Response } from 'express';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 import * as config from '../config/config';
-import { Identity } from 'fabric-network';
 import * as jwt from 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
 import { logger } from '../utilities/logger';
+import User from '../services/users.service';
 
 const { UNAUTHORIZED } = StatusCodes;
 
 export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy = new HeaderAPIKeyStrategy(
   { header: 'X-API-Key', prefix: '' },
   false,
-  function (apikey, done) {
+  async function (apikey, done) {
     try {
-      const user = jwt.verify(apikey, config.JwtSecret) as JwtPayload;
-      if (config.MSPID != user.mspId) {
+      const userJwt = jwt.verify(apikey, config.JwtSecret) as JwtPayload;
+      const user = new User(userJwt.userId, userJwt.mspId);
+      await user.init();
+
+      if (config.mspid != userJwt.mspId) {
         return done(null, false);
       }
       done(null, user);
@@ -52,12 +55,6 @@ export const authenticateApiKey = (req: Request, res: Response, next: NextFuncti
   })(req, res, next);
 };
 
-export const generateAuthToken = async (userId: string, userIdentity: Identity | ''): Promise<string> => {
-  return jwt.sign(
-    {
-      userId: userId,
-      mspId: userIdentity ? userIdentity.mspId : undefined,
-    },
-    config.JwtSecret
-  );
+export const generateAuthToken = async (userId: string): Promise<string> => {
+  return jwt.sign({ userId: userId }, config.JwtSecret);
 };

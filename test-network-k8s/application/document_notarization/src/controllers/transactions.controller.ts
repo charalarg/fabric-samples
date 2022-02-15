@@ -2,19 +2,19 @@ import { logger } from '../utilities/logger';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 const { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } = StatusCodes;
 import { Request, Response } from 'express';
-import { getTransactionValidationCode } from '../services/fabric.service';
 import { Contract } from 'fabric-network';
 import { TransactionNotFoundError } from '../utilities/errors';
+import User from '../services/users.service';
 
 class TransactionsController {
   public getTransaction = async (req: Request, res: Response) => {
-    const mspId = req.user as string;
+    const user = req.user as User;
     const transactionId = req.params.transactionId;
     logger.debug('Read request received for transaction ID %s', transactionId);
 
     try {
-      const qsccContract = req.app.locals[mspId]?.qsccContract as Contract;
-      const validationCode = await getTransactionValidationCode(qsccContract, transactionId);
+      const qscc = user.fabricSvc.contracts.qsccContract as Contract;
+      const validationCode = await user.fabricSvc.getTransactionValidationCode(qscc, transactionId);
 
       return res.status(OK).json({
         transactionId,

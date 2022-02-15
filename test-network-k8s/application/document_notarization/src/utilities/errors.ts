@@ -25,6 +25,18 @@ export class ContractError extends Error {
   }
 }
 
+export class JobNotFoundError extends Error {
+  jobId: string;
+
+  constructor(message: string, jobId: string) {
+    super(message);
+    Object.setPrototypeOf(this, JobNotFoundError.prototype);
+
+    this.name = 'JobNotFoundError';
+    this.jobId = jobId;
+  }
+}
+
 /*
  * Represents the error which occurs when the transaction being submitted or
  * evaluated is not implemented in a smart contract.

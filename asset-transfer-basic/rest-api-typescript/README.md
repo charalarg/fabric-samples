@@ -64,7 +64,7 @@ Related files:
   All the sample code which interacts with the Fabric network via the Fabric SDK.
 - [src/jobs.router.ts](src/jobs.router.ts)  
   Defines the `/api/jobs` endpoint for getting job status.
-- [src/jobs.service.ts](src/jobs.ts)
+- [src/redis.service.ts](src/jobs.ts)
   Job queue implementation details.
 - [src/transactions.router.ts]()  
   Defines the `/api/transactions` endpoint for getting transaction status.
@@ -79,7 +79,7 @@ The remaining sample files are related to the REST server aspects of the sample,
   Basic API key authentication strategy used for the sample.
 - [src/config.ts](src/config.ts)  
   Descriptions of all the available configuration environment variables.
-- [src/jobs.service.ts](src/jobs.ts)  
+- [src/redis.service.ts](src/jobs.ts)  
   Job queue implementation details.
 - [src/logger.ts](src/logger.ts)  
   Logging implementation details.
