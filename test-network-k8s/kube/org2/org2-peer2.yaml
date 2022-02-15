@@ -90,19 +90,6 @@ spec:
             - name: tls-cert-volume
               mountPath: /var/hyperledger/fabric/config/tls
               readOnly: true
-        - name: ledger
-          image: couchdb:3.1.1
-          env:
-            - name: COUCHDB_USER
-              value: "admin"
-            - name: COUCHDB_PASSWORD
-              value: "adminpw"
-          ports:
-            - containerPort: 5984
-          volumeMounts:
-            - name: fabric-volume
-              mountPath: /opt/couchdb/data
-              subPath: state/org2/peer2-couchdb
       volumes:
         - name: fabric-volume
           persistentVolumeClaim:
@@ -134,21 +121,3 @@ spec:
       protocol: TCP
   selector:
     app: org2-peer2
-#---
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: org2-peer2-couch
-#  annotations:
-#    nginx.ingress.kubernetes.io/rewrite-target: /$2
-#spec:
-#  rules:
-#    - http:
-#        paths:
-#          - path: /couchdb22(/|$)(.*)
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: org2-peer2-couch
-#                port:
-#                  number: 5984
