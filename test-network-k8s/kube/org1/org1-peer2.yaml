@@ -25,6 +25,7 @@ spec:
   issuerRef:
     name: org1-tls-cert-issuer
 
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -91,7 +92,7 @@ spec:
               mountPath: /var/hyperledger/fabric/config/tls
               readOnly: true
         - name: ledger
-          image: couchdb:3.1.1
+          image: couchdb:3.2.1
           env:
             - name: COUCHDB_USER
               value: "admin"

@@ -222,10 +222,10 @@ function build_and_push_images_locally() {
 
 
 function network_up() {
+
   # Kube config
   init_namespace
   init_storage_volumes
-
   load_org_config
 
   # Network TLS CAs
