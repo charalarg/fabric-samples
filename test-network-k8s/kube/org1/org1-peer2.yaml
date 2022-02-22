@@ -25,7 +25,6 @@ spec:
   issuerRef:
     name: org1-tls-cert-issuer
 
-
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -31,23 +31,25 @@ class Fabric {
     this.contracts = {};
   }
 
-  public async init() {
+  public async init(userId: string) {
     this.walletDir = await this.loadWallet();
     this.ccp = yaml.load(
       fs.readFileSync(config.fabricGatewayDir + '/' + config.fabric_ccp_name, 'utf8')
     ) as Record<string, unknown>;
-    this.contracts = await this.loadContracts();
+    this.contracts = await this.loadContracts(userId);
   }
 
   public loadWallet = async (): Promise<Wallet> => {
     return await Wallets.newFileSystemWallet(config.fabricWalletDir);
   };
 
-  public loadContracts = async (): Promise<{
+  public loadContracts = async (
+    userId: string
+  ): Promise<{
     docNotarizationContract: Contract;
     qsccContract: Contract;
   }> => {
-    const gateteway = await this.createGateway(config.fabricAppAdmin);
+    const gateteway = await this.createGateway(userId);
     const network = await this.getNetwork(gateteway);
     const docNotarizationContract = network.getContract(config.chaincodeName);
     const qsccContract = network.getContract('qscc');

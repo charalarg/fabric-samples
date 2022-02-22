@@ -208,12 +208,12 @@ function build_and_push_images_locally() {
 
   if [ "${image}" == "cc" ]; then
       docker rmi $(docker images | grep ${CHAINCODE_NAME}) --force || true
-      docker build -f chaincode/${CHAINCODE_NAME}/${dockerFile} -t ${CHAINCODE_IMAGE} chaincode/${CHAINCODE_NAME}
+      docker build -f chaincode/${CHAINCODE_NAME}/${dockerFile} -t ${CHAINCODE_IMAGE} chaincode/${CHAINCODE_NAME} --no-cache
       docker tag ${CHAINCODE_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
   elif [ "${image}" == "app" ]; then
       docker rmi $(docker images | grep ${APP_NAME}) --force || true
-      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME} --no-cache
+      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME}
       docker tag ${APP_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
   fi

@@ -20,6 +20,7 @@ export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy = new HeaderAPIKeyStrate
   async function (apikey, done) {
     try {
       const userJwt = jwt.verify(apikey, config.JwtSecret) as JwtPayload;
+
       const user = new User(userJwt.userId, userJwt.mspId);
       await user.init();
 
@@ -28,15 +29,23 @@ export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy = new HeaderAPIKeyStrate
       }
       done(null, user);
     } catch (error) {
+      logger.error('--------------------' + error);
       return done(null, false);
     }
   }
 );
 
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user: User, done) => {
+  done(null, user);
+});
+
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
-  passport.authenticate('headerapikey', { session: false }, (err, user, _info) => {
+  passport.authenticate('headerapikey', { session: true }, (err, user, _info) => {
     if (err) return next(err);
-    logger.info('USER ' + JSON.stringify(user));
 
     if (!user) {
       return res.status(UNAUTHORIZED).json({
@@ -55,6 +64,6 @@ export const authenticateApiKey = (req: Request, res: Response, next: NextFuncti
   })(req, res, next);
 };
 
-export const generateAuthToken = async (userId: string): Promise<string> => {
-  return jwt.sign({ userId: userId }, config.JwtSecret);
+export const generateAuthToken = async (userId: string, mspId: string): Promise<string> => {
+  return jwt.sign({ userId: userId, mspId: mspId }, config.JwtSecret);
 };

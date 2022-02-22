@@ -24,6 +24,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+            - containerPort: 22
           envFrom:
             - configMapRef:
                 name: app-fabric-org1-v1-map
@@ -73,6 +74,9 @@ spec:
     - name: http
       port: 3000
       protocol: TCP
+    - name: ssh
+      port: 22
+      protocol: TCP
   selector:
     app: application-deployment
 ---
@@ -91,3 +95,10 @@ spec:
                 name: application-deployment
                 port:
                   number: 3000
+#          - path: "/ssh"
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: application-deployment
+#                port:
+#                  number: 22

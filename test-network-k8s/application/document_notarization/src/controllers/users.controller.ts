@@ -22,7 +22,7 @@ class UsersController {
       if (password == 'x' && config.mspid == 'Org1MSP') {
         const user = new User(userId, config.mspid);
         await user.init();
-        const token = await generateAuthToken(userId);
+        const token = await generateAuthToken(userId, 'Org1MSP');
 
         return res.status(ACCEPTED).json({
           status: getReasonPhrase(ACCEPTED),

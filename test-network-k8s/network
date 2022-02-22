@@ -147,7 +147,7 @@ elif [ "${MODE}" == "build-images" ]; then
   IMAGE=$2
   shift 2
 
-  log "Building and pushing local images for cc and app"
+  log "Building and pushing local \"${IMAGE}\"images"
   CHAINCODE_VERSION=$@
   APP_VERSION=$@
   CHAINCODE_IMAGE=document-notarization-cc:v${CHAINCODE_VERSION}

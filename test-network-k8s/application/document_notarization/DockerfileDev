@@ -3,11 +3,21 @@ ENV NODE_ENV production
 WORKDIR /app
 
 RUN apk add --no-cache g++ make python3 dumb-init
+
+#RUN apk add --update --no-cache openssh
+#RUN echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+#RUN adduser -h /home/charg -s /bin/sh -D charg
+#RUN echo -n 'charg:123456789' | chpasswd
+#RUN ssh-keygen -A
+
 COPY --chown=node:node . /app
 
 EXPOSE 3000
-USER node
+USER root
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
 
-ENTRYPOINT [ "dumb-init", "--", "npm", "run"]
-CMD ["dev"]
+USER node
+ENTRYPOINT ["dumb-init", "--", "npm", "run"]
+CMD ["debug"]
+#CMD ["dev"]
 #ENTRYPOINT ["tail", "-f", "/dev/null"]

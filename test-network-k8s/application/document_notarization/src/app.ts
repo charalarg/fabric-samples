@@ -66,6 +66,7 @@ class App {
     this.app.use(fileUpload({ limits: { fileSize: config.maxFileSize } }));
     passport.use(fabricAPIKeyStrategy);
     this.app.use(passport.initialize());
+    this.app.use(passport.session());
     this.app.use(notFoundError);
     this.app.use(internalServerError);
   }

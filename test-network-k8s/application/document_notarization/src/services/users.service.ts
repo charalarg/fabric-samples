@@ -17,7 +17,7 @@ class User {
   }
 
   public async init() {
-    await this.fabricSvc.init();
+    await this.fabricSvc.init(this.userId);
     await Redis.getInstance().initJobQueueWorker(this.fabricSvc);
   }
 

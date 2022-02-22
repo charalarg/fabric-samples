@@ -26,7 +26,7 @@ function json_ccp {
   sed -e "s/\${ORG}/$ORG/" \
       -e "s#\${PEERPEM}#$PP#" \
       -e "s#\${CAPEM}#$CP#" \
-      scripts/ccp_template_gateway_svc.json
+      scripts/ccp-template.json
 }
 
 function app_id {
@@ -65,7 +65,7 @@ function construct_application_configmap() {
   local cert=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/signcerts/cert.pem
   local pk=build/msp/organizations/peerOrganizations/org1.example.com/users/Admin\@org1.example.com/msp/keystore/server.key
 
-  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin/.id
+  echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin.id
 
 #  local cert=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/signcerts/cert.pem
 #  local pk=build/msp/organizations/peerOrganizations/org2.example.com/users/Admin\@org2.example.com/msp/keystore/server.key
@@ -145,4 +145,6 @@ function deploy_application() {
 function application_connection() {
  construct_application_configmap
  deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
+ # port-forward for debugger
+ kubectl -n $NS port-forward deploy/application-deployment 9229:9229 &
 }

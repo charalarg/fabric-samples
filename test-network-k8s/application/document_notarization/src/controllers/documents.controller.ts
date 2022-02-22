@@ -112,7 +112,7 @@ class DocumentsController {
     try {
       const user = req.user as User;
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
-      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDoc', documentHash, '');
+      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDoc', documentHash);
       const documents = JSON.parse(data.toString());
 
       return res.status(OK).json(documents);
