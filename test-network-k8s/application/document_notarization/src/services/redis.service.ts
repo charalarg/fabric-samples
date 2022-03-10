@@ -221,7 +221,7 @@ class Redis {
     return jobCounts;
   };
 
-  public processSubmitTransactionJob = async (
+  private processSubmitTransactionJob = async (
     fabricSvc: Fabric,
     job: Job<JobData, JobResult>
   ): Promise<JobResult> => {

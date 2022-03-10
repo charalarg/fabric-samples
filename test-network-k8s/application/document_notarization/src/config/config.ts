@@ -36,10 +36,11 @@ export const redisHost = env.get('redis_host').default('localhost').example('loc
 export const redisPort = env.get('redis_port').default('6379').example('6379').asPortNumber();
 export const redisUsername = env.get('redis_username').example('fabric').asString();
 export const redisPassword = env.get('redis_password').asString();
-// CouchDb
-export const couchDbHost = env.get('couchDb_host').default('localhost').example('localhost').asString();
-export const couchDbPort = env.get('couchDb_port').default('5984').example('6379').asPortNumber();
-export const couchDbUsername = env.get('couchDb_username').example('admin').asString();
-export const couchDbPassword = env.get('couchDb_password').default("adminpw").asString();
+// MongoDb
+export const mongoDbHost = env.get('mongoDb_host').default('localhost').example('localhost').asString();
+export const mongoDbPort = env.get('mongoDb_port').default('27017').example('27017').asPortNumber();
+export const mongoDbUsername = env.get('mongoDb_username').example('admin').asString();
+export const mongoDbPassword = env.get('mongoDb_password').default("adminpw").asString();
+export const mongoDbName = env.get('mongoDbName').default("docNotarizationDb").asString();
 
 

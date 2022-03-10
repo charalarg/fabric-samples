@@ -44,6 +44,7 @@ APP_VERSION=${TEST_NETWORK_APP_VERSION:-9}
 APP_NAME=${TEST_NETWORK_APP_NAME:-document_notarization}
 APP_IMAGE=${TEST_NETWORK_APP_IMAGE:-document_notarization-app:v${APP_VERSION}}
 REDIS_IMAGE=${TEST_NETWORK_REDIS:-redis:6.2.5}
+MONGO_IMAGE=${TEST_NETWORK_MONGO:-mongo}
 COUCHDB_IMAGE=${TEST_NETWORK_COUCHDB_IMAGE:-couchdb:3.2.0}
 
 # todo: more complicated config, as these bleed into the yaml descriptors (sed? kustomize? helm (no)? tkn? ansible?...) or other script locations

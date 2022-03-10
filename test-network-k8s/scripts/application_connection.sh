@@ -136,6 +136,7 @@ function deploy_application() {
   cat kube/application-deployment.yaml \
     | sed 's,{{APP_IMAGE}},'${app_image}',g' \
     | sed 's,{{REDIS_IMAGE}},'${redis_image}',g' \
+    | sed 's,{{APP_STORE_PVC}},fabric-org1 ,g' \
     | exec kubectl -n $NS apply -f -
 
   kubectl -n $NS rollout status deploy/application-deployment

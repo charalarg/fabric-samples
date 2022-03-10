@@ -47,7 +47,24 @@ spec:
           image: {{REDIS_IMAGE}}
           ports:
             - containerPort: 6379
+        - name: mongo
+          image: mongo
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "admin"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "adminpw"
+            - name: MONGO_INITDB_DATABASE
+              value: "docNotarizationDb"
+          volumeMounts:
+            - name: app-store
+              mountPath: /data/db
       volumes:
+        - name: app-store
+          persistentVolumeClaim:
+            claimName: {{APP_STORE_PVC}}
         - name: app-codebase
           hostPath:
             path: /test-network-k8s/application/document_notarization
@@ -76,6 +93,9 @@ spec:
       protocol: TCP
     - name: ssh
       port: 22
+      protocol: TCP
+    - name: mongo
+      port: 27017
       protocol: TCP
   selector:
     app: application-deployment
