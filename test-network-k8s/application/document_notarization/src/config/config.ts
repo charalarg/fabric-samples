@@ -3,6 +3,7 @@ import * as env from 'env-var';
 // App
 export const JwtSecret = 'FB8D522BD9B6C38D4C8EC2D7A04BC3FF3A54';
 export const maxFileSize = 50 * 1024 * 1024;
+export const encSaltRounds = 10;
 export const logLevel = env.get('log_level').default('debug').asEnum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']);
 export const port = env.get('port').default('3000').example('3000').asPortNumber();
 // Jobs
@@ -39,7 +40,7 @@ export const redisPassword = env.get('redis_password').asString();
 // MongoDb
 export const mongoDbHost = env.get('mongoDb_host').default('localhost').example('localhost').asString();
 export const mongoDbPort = env.get('mongoDb_port').default('27017').example('27017').asPortNumber();
-export const mongoDbUsername = env.get('mongoDb_username').example('admin').asString();
+export const mongoDbUsername = env.get('mongoDb_username').default('admin').asString();
 export const mongoDbPassword = env.get('mongoDb_password').default("adminpw").asString();
 export const mongoDbName = env.get('mongoDbName').default("docNotarizationDb").asString();
 

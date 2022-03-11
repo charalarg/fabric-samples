@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import { generateAuthToken } from '../middlewares/auth';
 import User from '../services/users.service';
 import * as config from '../config/config';
+import UserModel from '../models/user.model';
 
 class UsersController {
   private user: User | undefined;
@@ -18,8 +19,9 @@ class UsersController {
     const password = req.body.password;
 
     try {
-      // TODO auta prepei na elegxontai apo mia DB
-      if (password == 'x' && config.mspid == 'Org1MSP') {
+      const userModel = await UserModel.findByCredentials(userId, password);
+
+      if (userModel) {
         const user = new User(userId, config.mspid);
         await user.init();
         const token = await generateAuthToken(userId, 'Org1MSP');

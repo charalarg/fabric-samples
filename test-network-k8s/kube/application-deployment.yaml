@@ -49,6 +49,7 @@ spec:
             - containerPort: 6379
         - name: mongo
           image: mongo
+          imagePullPolicy: Always
           ports:
             - containerPort: 27017
           env:
@@ -61,16 +62,21 @@ spec:
           volumeMounts:
             - name: app-store
               mountPath: /data/db
+            - name: mongo-init-script
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: app-store
           persistentVolumeClaim:
             claimName: {{APP_STORE_PVC}}
+        - name: mongo-init-script
+          hostPath:
+            path: /test-network-k8s/application/docker-entrypoint-initdb.d
         - name: app-codebase
           hostPath:
             path: /test-network-k8s/application/document_notarization
         - name: fabric-ccp
           configMap:
-            name: app-fabric-ccp-v1-map
+            name: app-fabric-ccp-v1-mapAds·Shop
         - name: fabricids
           configMap:
             name: app-fabric-ids-v1-map

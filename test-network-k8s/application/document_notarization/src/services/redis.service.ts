@@ -120,6 +120,10 @@ class Redis {
   };
 
   public cleanUp = async (): Promise<void> => {
+    if (Redis._instance) {
+      Redis._instance = {} as Redis;
+    }
+
     if (this.jobQueueScheduler != undefined) {
       logger.debug('Closing job queue scheduler');
       await this.jobQueueScheduler.close();

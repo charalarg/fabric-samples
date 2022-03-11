@@ -10,6 +10,8 @@ import { logger } from './utilities/logger';
 import Routes from './routers/index.router';
 import Redis from './services/redis.service';
 import helmet from 'helmet';
+import Mongo from './services/mongo.service';
+import UserModel from './models/user.model';
 
 class App {
   public app: express.Application;
@@ -43,15 +45,14 @@ class App {
   }
 
   public async init() {
-    await this.initDB();
+    await App.initDB();
     Redis.getInstance();
   }
 
-  private async initDB() {
-    try {
-    } catch (error) {
-      console.error('Unable to connect to the database:', error);
-    }
+  private static async initDB() {
+    await Mongo.getInstance();
+    const admin = new UserModel({ userId: 'org1-admin', password: 'adminpw' });
+    await admin.save();
   }
 
   private initializeRoutes() {

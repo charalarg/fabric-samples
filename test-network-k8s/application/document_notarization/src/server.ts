@@ -1,5 +1,6 @@
 import App from './app';
 import Redis from './services/redis.service';
+import Mongo from './services/mongo.service';
 
 const app = new App();
 
@@ -9,6 +10,7 @@ const app = new App();
     app.listen();
   } catch (error) {
     console.log(error);
+    await (await Mongo.getInstance()).cleanUp();
     await Redis.getInstance().cleanUp();
   }
 })();
