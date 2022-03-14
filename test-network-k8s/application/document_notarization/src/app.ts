@@ -22,7 +22,6 @@ class App {
     this.port = config.port || 5000;
 
     try {
-      // Init app
       this.initializeMiddlewares();
       this.initializeRoutes();
 
@@ -51,8 +50,7 @@ class App {
 
   private static async initDB() {
     await Mongo.getInstance();
-    const admin = new UserModel({ userId: 'org1-admin', password: 'adminpw' });
-    await admin.save();
+    await UserModel.createUser(config.fabricAppAdmin, config.fabricAppPass);
   }
 
   private initializeRoutes() {
@@ -70,14 +68,6 @@ class App {
     this.app.use(passport.session());
     this.app.use(notFoundError);
     this.app.use(internalServerError);
-  }
-
-  private initializeRedis() {
-    // if (!(await isMaxMemoryPolicyNoEviction())) {
-    //   throw new Error(
-    //     'Invalid redis configuration: redis instance must have the setting maxmemory-policy=noeviction'
-    //   );
-    // }
   }
 
   // private initializeSwagger() {

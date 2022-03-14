@@ -41,7 +41,7 @@ function launch_peers() {
   kubectl -n $NS rollout status deploy/org2-peer2
 
   # Port forward for couchDB UI
-  kubectl -n $NS port-forward deploy/org1-peer1 5984:5984 &
+#  kubectl -n $NS port-forward deploy/org1-peer1 5984:5984 &
   pop_fn
 }
 

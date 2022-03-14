@@ -113,6 +113,7 @@ data:
   fabric_gateway_dir: /fabric/application/gateway
   fabric_ccp_name: org1_ccp.json
   fabric_app_admin: org1-admin
+  fabric_app_pass: adminpw
   fabric_gateway_tlsCertPath: /fabric/tlscacerts/org1-tls-ca.pem
   fabric_ca_cert: /fabric/cacerts/org1-ca.pem
   ca_host_name: org1-ca
@@ -140,12 +141,23 @@ function deploy_application() {
     | exec kubectl -n $NS apply -f -
 
   kubectl -n $NS rollout status deploy/application-deployment
+
   pop_fn
 }
 
+#function port_forward() {
+#   port-forward for mongoDB
+#  kubectl -n $NS port-forward deploy/application-deployment 27017:27017 &
+#  kubectl -n $NS rollout status deploy/application-deployment
+
+#   port-forward for debugger
+#  kubectl -n $NS port-forward deploy/application-deployment 9229:9229 &
+#  kubectl -n $NS rollout status deploy/application-deployment
+#}
+
+
 function application_connection() {
- construct_application_configmap
- deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
- # port-forward for debugger
- kubectl -n $NS port-forward deploy/application-deployment 9229:9229 &
+  construct_application_configmap
+  deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
+#  port_forward
 }

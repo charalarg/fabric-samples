@@ -32,6 +32,7 @@ export const fabric_ccp_name = env.get('fabric_ccp_name').default('org_ccp.json'
 export const fabricGatewayTlsCertPath = env.get('fabric_gateway_tlsCertPath').default('/fabric/tlscacerts/org-tls-ca.pem').example('/path/to/tlscsert').asString();
 export const fabricCaCertPath = env.get('fabric_ca_cert').default('/fabric/cacerts/org-ca.pem').example('/fabric/cacerts/org-ca.pem').asString();
 export const fabricAppAdmin = env.get('fabric_app_admin').default('org-admin').example('org-admin').asString();
+export const fabricAppPass = env.get('fabric_app_pass').default('adminpw').example('12345!@#$%').asString();
 // Redis
 export const redisHost = env.get('redis_host').default('localhost').example('localhost').asString();
 export const redisPort = env.get('redis_port').default('6379').example('6379').asPortNumber();

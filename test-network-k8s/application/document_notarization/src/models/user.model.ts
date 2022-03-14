@@ -9,6 +9,7 @@ interface IUser {
 
 interface IUserModel extends Model<IUser> {
   findByCredentials(userId: string, password: string): Promise<IUser>;
+  createUser(userId: string, password: string): Promise<VoidFunction>;
 }
 
 const UserSchema = new Schema<IUser, IUserModel>({
@@ -22,12 +23,17 @@ UserSchema.statics.findByCredentials = async (userId: string, password: string) 
   return isMatch ? user : null;
 };
 
-UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    this.password = await hash(this.password, config.encSaltRounds);
-  }
-  return next();
-});
+UserSchema.statics.createUser = async (userId: string, password: string) => {
+  password = await hash(password, config.encSaltRounds);
+  await UserModel.findOneAndUpdate({ userId }, { userId, password }, { upsert: true });
+};
+
+// UserSchema.pre('save', async function (next) {
+//   if (this.isModified('password')) {
+//     this.password = await hash(this.password, config.encSaltRounds);
+//   }
+//   return next();
+// });
 
 const UserModel = model<IUser, IUserModel>('User', UserSchema, 'users');
 export default UserModel;

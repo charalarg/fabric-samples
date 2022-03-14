@@ -22,8 +22,8 @@ class UsersController {
       const userModel = await UserModel.findByCredentials(userId, password);
 
       if (userModel) {
-        const user = new User(userId, config.mspid);
-        await user.init();
+        // const user = new User(userId, config.mspid);
+        // await user.init();
         const token = await generateAuthToken(userId, 'Org1MSP');
 
         return res.status(ACCEPTED).json({

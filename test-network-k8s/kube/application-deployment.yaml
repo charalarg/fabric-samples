@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-            - containerPort: 22
+            - containerPort: 9229
           envFrom:
             - configMapRef:
                 name: app-fabric-org1-v1-map
@@ -76,7 +76,7 @@ spec:
             path: /test-network-k8s/application/document_notarization
         - name: fabric-ccp
           configMap:
-            name: app-fabric-ccp-v1-mapAds·Shop
+            name: app-fabric-ccp-v1-map
         - name: fabricids
           configMap:
             name: app-fabric-ids-v1-map
@@ -97,12 +97,30 @@ spec:
     - name: http
       port: 3000
       protocol: TCP
-    - name: ssh
-      port: 22
-      protocol: TCP
     - name: mongo
       port: 27017
       protocol: TCP
+    - name: debugger
+      port: 9229
+      protocol: TCP
+  selector:
+    app: application-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-deployment
+spec:
+  type: NodePort
+  ports:
+    - name: mongo
+      port: 27017
+      protocol: TCP
+      nodePort: 30017
+    - name: debugger
+      port: 9229
+      protocol: TCP
+      nodePort: 30029
   selector:
     app: application-deployment
 ---
@@ -121,10 +139,3 @@ spec:
                 name: application-deployment
                 port:
                   number: 3000
-#          - path: "/ssh"
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: application-deployment
-#                port:
-#                  number: 22
