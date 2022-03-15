@@ -48,7 +48,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: mongo
-          image: mongo
+          image: {{MONGO_IMAGE}}
           imagePullPolicy: Always
           ports:
             - containerPort: 27017
@@ -62,6 +62,7 @@ spec:
           volumeMounts:
             - name: app-store
               mountPath: /data/db
+              subPath: offchain/data
             - name: mongo-init-script
               mountPath: /docker-entrypoint-initdb.d
       volumes:

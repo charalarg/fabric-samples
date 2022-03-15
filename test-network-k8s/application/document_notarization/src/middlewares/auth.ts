@@ -43,7 +43,7 @@ passport.deserializeUser((user: User, done) => {
 });
 
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
-  passport.authenticate('headerapikey', { session: true }, (err, user, _info) => {
+  passport.authenticate('headerapikey', { session: false }, (err, user, _info) => {
     if (err) return next(err);
 
     if (!user) {

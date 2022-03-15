@@ -10,6 +10,7 @@ function launch() {
   cat ${yaml} \
     | sed 's,{{FABRIC_CONTAINER_REGISTRY}},'${FABRIC_CONTAINER_REGISTRY}',g' \
     | sed 's,{{FABRIC_VERSION}},'${FABRIC_VERSION}',g' \
+    | sed 's,{{COUCHDB_IMAGE}},'${COUCHDB_IMAGE}',g' \
     | kubectl -n $NS apply -f -
 }
 
@@ -302,5 +303,5 @@ function scrub_org_volumes() {
 
 function network_down() {
   stop_services
-#  scrub_org_volumes
+  scrub_org_volumes
 }

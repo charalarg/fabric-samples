@@ -132,11 +132,13 @@ EOF
 function deploy_application() {
   local app_image=$1
   local redis_image=$2
+  local mongo_image=$3
   push_fn "Launching application container \"${app_image}\""
 
   cat kube/application-deployment.yaml \
     | sed 's,{{APP_IMAGE}},'${app_image}',g' \
     | sed 's,{{REDIS_IMAGE}},'${redis_image}',g' \
+    | sed 's,{{MONGO_IMAGE}},'${mongo_image}',g' \
     | sed 's,{{APP_STORE_PVC}},fabric-org1 ,g' \
     | exec kubectl -n $NS apply -f -
 
@@ -148,5 +150,5 @@ function deploy_application() {
 
 function application_connection() {
   construct_application_configmap
-  deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
+  deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE} ${MONGO_IMAGE}
 }
