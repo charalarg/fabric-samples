@@ -1,5 +1,5 @@
 import * as config from '../config/config';
-import { connect, disconnect } from 'mongoose';
+import { connect } from 'mongoose';
 
 class Mongo {
   private static _instance: Mongo;

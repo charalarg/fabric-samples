@@ -7,23 +7,14 @@
 const State = require('./ledger/state.js');
 
 class Document extends State {
-    owners = [];
 
     constructor(obj) {
         super(Document.getClass(), [obj.hash, obj.timestamp]);
         Object.assign(this, obj);
     }
 
-    addOwner(owner) {
-        this.owners.push(owner);
-    }
-
-    getOwners() {
-        return this.owners;
-    }
-
-    static createInstance(hash, issuer, signature, timestamp) {
-        return new Document({hash, issuer, signature, timestamp});
+    static createInstance(hash, issuer, mspId, signature, timestamp) {
+        return new Document({hash, issuer, mspId, signature, timestamp});
     }
 
     static getClass() {

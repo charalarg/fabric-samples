@@ -37,6 +37,7 @@ class DocumentsController {
         'issue',
         documentHash,
         userId,
+        mspId,
         sigValueBase64,
         new Date().toISOString()
       );

@@ -145,19 +145,8 @@ function deploy_application() {
   pop_fn
 }
 
-#function port_forward() {
-#   port-forward for mongoDB
-#  kubectl -n $NS port-forward deploy/application-deployment 27017:27017 &
-#  kubectl -n $NS rollout status deploy/application-deployment
-
-#   port-forward for debugger
-#  kubectl -n $NS port-forward deploy/application-deployment 9229:9229 &
-#  kubectl -n $NS rollout status deploy/application-deployment
-#}
-
 
 function application_connection() {
   construct_application_configmap
   deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE}
-#  port_forward
 }
