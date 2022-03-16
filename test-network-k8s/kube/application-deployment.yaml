@@ -79,8 +79,10 @@ spec:
           configMap:
             name: app-fabric-ccp-v1-map
         - name: fabricids
-          configMap:
-            name: app-fabric-ids-v1-map
+          hostPath:
+            path: /test-network-k8s/build/application/wallet
+#          configMap:
+#            name: app-fabric-ids-v1-map
         - name: tlscerts
           configMap:
             name: app-fabric-tls-v1-map

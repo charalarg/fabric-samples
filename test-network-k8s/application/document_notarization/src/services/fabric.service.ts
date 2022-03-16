@@ -12,6 +12,7 @@ import {
   Transaction,
   Wallet,
   Wallets,
+  X509Identity,
 } from 'fabric-network';
 import * as config from '../config/config';
 import { logger } from '../utilities/logger';
@@ -21,17 +22,23 @@ import yaml from 'js-yaml';
 import * as fs from 'fs';
 
 class Fabric {
-  private walletDir: Wallet | undefined;
-  private ccp: Record<string, unknown>;
+  protected walletDir: Wallet | undefined;
+  protected ccp: Record<string, unknown>;
   public contracts: Record<string, unknown>;
+  protected userIdentity: X509Identity | undefined;
+  protected userId: string | undefined;
 
   constructor() {
     this.walletDir = undefined;
     this.ccp = {};
     this.contracts = {};
+    this.userIdentity = undefined;
+    this.userId = undefined;
   }
 
-  public async init(userId: string) {
+  public async init(userId: string, userIdentity: X509Identity) {
+    this.userId = userId;
+    this.userIdentity = userIdentity;
     this.walletDir = await this.loadWallet();
     this.ccp = yaml.load(
       fs.readFileSync(config.fabricGatewayDir + '/' + config.fabric_ccp_name, 'utf8')
@@ -39,11 +46,11 @@ class Fabric {
     this.contracts = await this.loadContracts(userId);
   }
 
-  public loadWallet = async (): Promise<Wallet> => {
+  protected loadWallet = async (): Promise<Wallet> => {
     return await Wallets.newFileSystemWallet(config.fabricWalletDir);
   };
 
-  public loadContracts = async (
+  private loadContracts = async (
     userId: string
   ): Promise<{
     docNotarizationContract: Contract;
@@ -147,59 +154,3 @@ class Fabric {
 }
 
 export default Fabric;
-
-// export const buildCaClient = (ccp: Record<string, unknown>): FabricCAServices => {
-//   const ca = ccp.certificateAuthorities as Record<string, unknown>;
-//   const caInfo = ca[config.caHostName] as Record<string, unknown>;
-//   const caTlsInfo = ca.tlsCACerts as Record<string, unknown>;
-//   const caTLSCACerts = caTlsInfo.pem;
-//   const caClient = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: true }, caInfo.caName);
-//   return caClient;
-// };
-
-// export const buildCCP = (): Record<string, unknown> => {
-//   return yaml.load(fs.readFileSync(config.fabricGatewayDir + '/' + config.fabric_ccp_name, 'utf8')) as Record<
-//     string,
-//     unknown
-//   >;
-// };
-
-// export const registerAndEnrollUser = async (userId: string): Promise<void> => {
-//   try {
-//     const wallet = await loadUserWallet();
-//     const ccp = buildCCP();
-//     const caClient = buildCaClient(ccp);
-//     const userIdentity = await wallet.get(userId);
-//     if (userIdentity) {
-//       logger.info(`An identity for the user ${userId} already exists in the wallet`);
-//       return;
-//     }
-//
-//     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-//     const adminUser = await provider.getUserContext(adminIdentity, adminUserId);
-//
-//     const secret = await caClient.register(
-//       {
-//         affiliation: '',
-//         enrollmentID: userId,
-//         role: 'client',
-//       },
-//       adminUser
-//     );
-//     const enrollment = await caClient.enroll({
-//       enrollmentID: userId,
-//       enrollmentSecret: secret,
-//     });
-//     const x509Identity = {
-//       credentials: {
-//         certificate: enrollment.certificate,
-//         privateKey: enrollment.key.toBytes(),
-//       },
-//       mspId: config.mspid,
-//       type: 'X.509',
-//     };
-//     await wallet.put(userId, x509Identity);
-//   } catch (error) {
-//     logger.error(`Failed to register user : ${error}`);
-//   }
-// };

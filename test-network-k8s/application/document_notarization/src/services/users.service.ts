@@ -5,22 +5,25 @@ import fs from 'fs';
 import Fabric from './fabric.service';
 import Redis from './redis.service';
 import { Role } from '../models/user.model';
+import FabricAdmin from './fabricAdmin.service';
 
 class User {
   public userId: string;
   public mspId: string;
   public role: Role;
-  public fabricSvc: Fabric;
+  public fabricSvc: FabricAdmin;
+  fabricSvcFactory = { OrgAdmin: FabricAdmin, Admin: Fabric, User: Fabric };
 
   constructor(userId: string, mspId: string, role: Role) {
     this.userId = userId;
     this.mspId = mspId;
     this.role = role;
-    this.fabricSvc = new Fabric();
+    this.fabricSvc = new this.fabricSvcFactory[Role.OrgAdmin]();
   }
 
   public async init() {
-    await this.fabricSvc.init(this.userId);
+    const userIdentity = (await this.loadUserIdentity()) as X509Identity;
+    await this.fabricSvc.init(this.userId, userIdentity);
     await Redis.getInstance().initJobQueueWorker(this.fabricSvc);
   }
 
