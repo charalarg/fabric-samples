@@ -4,15 +4,18 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import Fabric from './fabric.service';
 import Redis from './redis.service';
+import { Role } from '../models/user.model';
 
 class User {
   public userId: string;
   public mspId: string;
+  public role: Role;
   public fabricSvc: Fabric;
 
-  constructor(userId: string, mspId: string) {
+  constructor(userId: string, mspId: string, role: Role) {
     this.userId = userId;
     this.mspId = mspId;
+    this.role = role;
     this.fabricSvc = new Fabric();
   }
 

@@ -1,17 +1,16 @@
 import * as config from './config/config';
 import express from 'express';
-import { loggerMiddleware } from './utilities/logger';
+import { logger, loggerMiddleware } from './utilities/logger';
 import { validateJson } from './middlewares/validate';
 import fileUpload from 'express-fileupload';
 import passport from 'passport';
 import { fabricAPIKeyStrategy } from './middlewares/auth';
 import { internalServerError, notFoundError } from './middlewares/error';
-import { logger } from './utilities/logger';
 import Routes from './routers/index.router';
 import Redis from './services/redis.service';
 import helmet from 'helmet';
 import Mongo from './services/mongo.service';
-import UserModel from './models/user.model';
+import UserModel, { Role } from './models/user.model';
 
 class App {
   public app: express.Application;
@@ -50,7 +49,7 @@ class App {
 
   private static async initDB() {
     await Mongo.getInstance();
-    await UserModel.createUser(config.fabricAppAdmin, config.fabricAppPass);
+    await UserModel.createUser(config.fabricAppAdmin, config.fabricAppPass, Role.OrgAdmin);
   }
 
   private initializeRoutes() {

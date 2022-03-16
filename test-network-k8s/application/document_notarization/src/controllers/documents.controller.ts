@@ -27,7 +27,7 @@ class DocumentsController {
     sig.init(privateKey, '');
     sig.updateHex(documentHash);
     const sigValueHex = sig.sign();
-    const sigValueBase64 = new Buffer(sigValueHex, 'hex').toString('base64');
+    const sigValueBase64 = Buffer.from(sigValueHex, 'hex').toString('base64');
 
     try {
       const submitQueue = redis.jobQueue as Queue;

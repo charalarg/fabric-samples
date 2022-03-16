@@ -22,7 +22,7 @@ class UsersController {
       const userModel = await UserModel.findByCredentials(userId, password);
 
       if (userModel) {
-        const token = await generateAuthToken(userId, config.mspid);
+        const token = await generateAuthToken(userId, config.mspid, userModel.role);
 
         return res.status(ACCEPTED).json({
           status: getReasonPhrase(ACCEPTED),
@@ -44,6 +44,24 @@ class UsersController {
         timestamp: new Date().toISOString(),
       });
     }
+  };
+
+  public registerAdmin = async (req: Request, res: Response) => {
+    const userId = req.body.userId;
+    const password = req.body.password;
+
+    // try {
+    //
+    //
+    //
+    // } catch (err) {
+    //   logger.error({ err }, 'Error processing registerAdmin request for user %s', userId);
+    //
+    //   return res.status(INTERNAL_SERVER_ERROR).json({
+    //     status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+    //     timestamp: new Date().toISOString(),
+    //   });
+    // }
   };
 }
 

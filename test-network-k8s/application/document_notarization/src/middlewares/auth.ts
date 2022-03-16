@@ -11,6 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
 import { logger } from '../utilities/logger';
 import User from '../services/users.service';
+import { Role } from '../models/user.model';
 
 const { UNAUTHORIZED } = StatusCodes;
 
@@ -20,7 +21,7 @@ export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy = new HeaderAPIKeyStrate
   async function (apikey, done) {
     try {
       const userJwt = jwt.verify(apikey, config.JwtSecret) as JwtPayload;
-      const user = new User(userJwt.userId, userJwt.mspId);
+      const user = new User(userJwt.userId, userJwt.mspId, userJwt.role);
       await user.init();
 
       if (config.mspid != userJwt.mspId) {
@@ -41,6 +42,18 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user: User, done) => {
   done(null, user);
 });
+
+export const allowRoles = (roles: Role[]) => (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user as User;
+  if (!roles.includes(user.role)) {
+    return res.status(UNAUTHORIZED).json({
+      status: getReasonPhrase(UNAUTHORIZED),
+      reason: 'NO_VALID_ROLE',
+      timestamp: new Date().toISOString(),
+    });
+  }
+  return next();
+};
 
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
   passport.authenticate('headerapikey', { session: false }, (err, user, _info) => {
@@ -63,6 +76,6 @@ export const authenticateApiKey = (req: Request, res: Response, next: NextFuncti
   })(req, res, next);
 };
 
-export const generateAuthToken = async (userId: string, mspId: string): Promise<string> => {
-  return jwt.sign({ userId: userId, mspId: mspId }, config.JwtSecret);
+export const generateAuthToken = async (userId: string, mspId: string, role: Role): Promise<string> => {
+  return jwt.sign({ userId: userId, mspId: mspId, role: role }, config.JwtSecret);
 };
