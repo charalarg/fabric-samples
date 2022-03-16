@@ -68,7 +68,6 @@ class App {
     this.app.use(notFoundError);
     this.app.use(internalServerError);
   }
-
   // private initializeSwagger() {
   //   const options = {
   //     swaggerDefinition: {
