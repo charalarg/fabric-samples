@@ -22,18 +22,25 @@ import yaml from 'js-yaml';
 import * as fs from 'fs';
 
 class Fabric {
-  protected walletDir: Wallet | undefined;
+  protected walletDir!: Wallet;
   protected ccp: Record<string, unknown>;
   public contracts: Record<string, unknown>;
-  protected userIdentity: X509Identity | undefined;
-  protected userId: string | undefined;
+  protected userIdentity!: X509Identity;
+  protected userId!: string;
 
-  constructor() {
-    this.walletDir = undefined;
+  protected constructor() {
     this.ccp = {};
     this.contracts = {};
-    this.userIdentity = undefined;
-    this.userId = undefined;
+  }
+
+  public static async build<T extends Fabric>(
+    C: new () => T,
+    userId: string,
+    userIdentity: X509Identity
+  ): Promise<T> {
+    const fabric = new C();
+    await fabric.init(userId, userIdentity);
+    return fabric;
   }
 
   public async init(userId: string, userIdentity: X509Identity) {

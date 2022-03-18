@@ -5,7 +5,7 @@ class Mongo {
   private static _instance: Mongo;
   private readonly connectionString: string;
 
-  constructor() {
+  private constructor() {
     this.connectionString =
       'mongodb://' +
       config.mongoDbUsername +

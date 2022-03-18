@@ -1,7 +1,5 @@
 import { Wallets, X509Identity } from 'fabric-network';
 import * as config from '../config/config';
-import yaml from 'js-yaml';
-import fs from 'fs';
 import Fabric from './fabric.service';
 import Redis from './redis.service';
 import { Role } from '../models/user.model';
@@ -11,19 +9,25 @@ class User {
   public userId: string;
   public mspId: string;
   public role: Role;
-  public fabricSvc: FabricAdmin;
-  fabricSvcFactory = { OrgAdmin: FabricAdmin, Admin: Fabric, User: Fabric };
+  public fabricSvc!: FabricAdmin;
+  fabricSvcMap = { OrgAdmin: FabricAdmin, Admin: Fabric, User: Fabric };
 
-  constructor(userId: string, mspId: string, role: Role) {
+  private constructor(userId: string, mspId: string, role: Role) {
     this.userId = userId;
     this.mspId = mspId;
     this.role = role;
-    this.fabricSvc = new this.fabricSvcFactory[Role.OrgAdmin]();
+  }
+
+  public static async build(userId: string, mspId: string, role: Role) {
+    const user = new User(userId, mspId, role);
+    await user.init();
+    return user;
   }
 
   public async init() {
     const userIdentity = (await this.loadUserIdentity()) as X509Identity;
-    await this.fabricSvc.init(this.userId, userIdentity);
+    const fabricClass = this.fabricSvcMap[Role.OrgAdmin];
+    this.fabricSvc = await fabricClass.build(fabricClass, this.userId, userIdentity);
     await Redis.getInstance().initJobQueueWorker(this.fabricSvc);
   }
 
@@ -35,12 +39,6 @@ class User {
   public loadUserCredentials = async (): Promise<Record<string, unknown>> => {
     const userIdentity = await this.loadUserIdentity();
     return (userIdentity as X509Identity).credentials as Record<string, unknown>;
-  };
-
-  public loadUserIdentityFromFS = async (): Promise<X509Identity> => {
-    return (await yaml.load(
-      fs.readFileSync(config.fabricWalletDir + '/' + this.userId + '.id', 'utf8')
-    )) as X509Identity;
   };
 }
 

@@ -21,8 +21,7 @@ export const fabricAPIKeyStrategy: HeaderAPIKeyStrategy = new HeaderAPIKeyStrate
   async function (apikey, done) {
     try {
       const userJwt = jwt.verify(apikey, config.JwtSecret) as JwtPayload;
-      const user = new User(userJwt.userId, userJwt.mspId, userJwt.role);
-      await user.init();
+      const user = await User.build(userJwt.userId, userJwt.mspId, userJwt.role);
 
       if (config.mspid != userJwt.mspId) {
         return done(null, false);

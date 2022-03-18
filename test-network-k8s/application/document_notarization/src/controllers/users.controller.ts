@@ -8,12 +8,6 @@ import * as config from '../config/config';
 import UserModel, { Role } from '../models/user.model';
 
 class UsersController {
-  private user: User | undefined;
-
-  constructor() {
-    this.user = undefined;
-  }
-
   public login = async (req: Request, res: Response) => {
     const userId = req.body.userId;
     const password = req.body.password;

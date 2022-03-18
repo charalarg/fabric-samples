@@ -34,9 +34,9 @@ export type JobSummary = {
 
 class Redis {
   private static _instance: Redis;
-  public jobQueue: Queue | undefined;
-  private jobQueueWorkers: Array<Worker> | undefined;
-  private readonly jobQueueScheduler: QueueScheduler | undefined;
+  public jobQueue!: Queue;
+  private jobQueueWorkers!: Array<Worker>;
+  private readonly jobQueueScheduler!: QueueScheduler;
   private connectionOptions = {
     port: config.redisPort,
     host: config.redisHost,
@@ -44,7 +44,7 @@ class Redis {
     password: config.redisPassword,
   };
 
-  constructor() {
+  private constructor() {
     if (config.submitJobQueueScheduler) {
       this.jobQueueScheduler = this.initJobQueueScheduler();
     }
