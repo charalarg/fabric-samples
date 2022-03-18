@@ -3,10 +3,11 @@
  */
 
 import Fabric from './fabric.service';
-import FabricCAServices from 'fabric-ca-client';
+import FabricCAServices, { IKeyValueAttribute } from 'fabric-ca-client';
 import * as config from '../config/config';
 import { logger } from '../utilities/logger';
 import { X509Identity } from 'fabric-network';
+import { Role } from '../models/user.model';
 
 class FabricAdmin extends Fabric {
   constructor() {
@@ -25,9 +26,13 @@ class FabricAdmin extends Fabric {
     return new FabricCAServices(caUrl, { trustedRoots: caTLSCACerts, verify: verify }, caName);
   };
 
-  public registerAndEnrollUser = async (userId: string): Promise<void> => {
-    const adminIdentity = this.userIdentity as X509Identity;
-    const adminId = this.userId as string;
+  public registerAndEnrollUser = async (userId: string, userRole: Role): Promise<void> => {
+    const roleToAttrsMap: { [index: string]: IKeyValueAttribute[] } = {
+      Admin: [{ name: 'hf.Registrar.Roles', value: 'client' }],
+      User: [],
+    };
+    const registrantIdentity = this.userIdentity as X509Identity;
+    const registrantId = this.userId as string;
 
     try {
       const wallet = await this.loadWallet();
@@ -38,17 +43,21 @@ class FabricAdmin extends Fabric {
         return;
       }
 
-      const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-      const adminUser = await provider.getUserContext(adminIdentity, adminId);
+      const provider = wallet.getProviderRegistry().getProvider(registrantIdentity.type);
+      const registrantUser = await provider.getUserContext(registrantIdentity, registrantId);
 
       const secret = await caClient.register(
         {
+          // TODO need to handle this secret
+          enrollmentSecret: 'pass',
           affiliation: '',
           enrollmentID: userId,
           role: 'client',
+          attrs: roleToAttrsMap[userRole],
         },
-        adminUser
+        registrantUser
       );
+
       const enrollment = await caClient.enroll({
         enrollmentID: userId,
         enrollmentSecret: secret,
@@ -64,6 +73,7 @@ class FabricAdmin extends Fabric {
       await wallet.put(userId, x509Identity);
     } catch (error) {
       logger.error(`Failed to register user : ${error}`);
+      throw error;
     }
   };
 }

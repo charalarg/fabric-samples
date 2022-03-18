@@ -32,7 +32,18 @@ class UsersRouter {
       body('userId', 'must be a string').notEmpty(),
       body('password', 'must be a string').notEmpty(),
       validateStructure,
-      this.usersController.registerAdmin
+      this.usersController.registerUser
+    );
+
+    this.router.post(
+      this.path + 'registerClient',
+      authenticateApiKey,
+      allowRoles([Role.Admin]),
+      body().isObject({ strict: true }),
+      body('userId', 'must be a string').notEmpty(),
+      body('password', 'must be a string').notEmpty(),
+      validateStructure,
+      this.usersController.registerUser
     );
   }
 }

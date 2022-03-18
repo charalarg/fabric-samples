@@ -10,7 +10,7 @@ class User {
   public mspId: string;
   public role: Role;
   public fabricSvc!: FabricAdmin;
-  fabricSvcMap = { OrgAdmin: FabricAdmin, Admin: Fabric, User: Fabric };
+  fabricSvcMap = { OrgAdmin: FabricAdmin, Admin: FabricAdmin, User: Fabric };
 
   private constructor(userId: string, mspId: string, role: Role) {
     this.userId = userId;

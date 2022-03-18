@@ -6,6 +6,7 @@ import { generateAuthToken } from '../middlewares/auth';
 import User from '../services/users.service';
 import * as config from '../config/config';
 import UserModel, { Role } from '../models/user.model';
+import FabricAdmin from '../services/fabricAdmin.service';
 
 class UsersController {
   public login = async (req: Request, res: Response) => {
@@ -40,14 +41,17 @@ class UsersController {
     }
   };
 
-  public registerAdmin = async (req: Request, res: Response) => {
-    const orgAdmin = req.user as User;
+  public registerUser = async (req: Request, res: Response) => {
+    const registerRoleMap: { [index: string]: Role } = { OrgAdmin: Role.Admin, Admin: Role.User };
+    const registrant = req.user as User;
+    const registrantRole = registrant.role as Role;
+    const userRole = registerRoleMap[registrantRole];
     const userId = req.body.userId;
     const password = req.body.password;
 
     try {
-      await orgAdmin.fabricSvc.registerAndEnrollUser(userId);
-      await UserModel.createUser(userId, password, Role.Admin);
+      await registrant.fabricSvc.registerAndEnrollUser(userId, userRole);
+      await UserModel.createUser(userId, password, userRole);
 
       return res.status(CREATED).json({
         status: getReasonPhrase(CREATED),
