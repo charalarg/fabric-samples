@@ -32,7 +32,12 @@ class DocumentsRouter {
       this.documentsController.validateDocument
     );
 
-    this.router.get(this.path + ':documentHash', authenticateApiKey, this.documentsController.getDocument);
+    this.router.get(
+      this.path,
+      authenticateApiKey,
+      allowRoles([Role.User]),
+      this.documentsController.getDocument
+    );
   }
 }
 

@@ -13,8 +13,8 @@ class Document extends State {
         Object.assign(this, obj);
     }
 
-    static createInstance(hash, issuer, mspId, signature, timestamp) {
-        return new Document({hash, issuer, mspId, signature, timestamp});
+    static createInstance(hash, issuer, mspId, certificate, signature, client, timestamp) {
+        return new Document({hash, issuer, mspId, certificate, signature, client, timestamp});
     }
 
     static getClass() {

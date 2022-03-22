@@ -48,8 +48,7 @@ class FabricAdmin extends Fabric {
 
       const secret = await caClient.register(
         {
-          // TODO need to handle this secret
-          enrollmentSecret: 'pass',
+          // enrollmentSecret: 'pass',
           affiliation: '',
           enrollmentID: userId,
           role: 'client',

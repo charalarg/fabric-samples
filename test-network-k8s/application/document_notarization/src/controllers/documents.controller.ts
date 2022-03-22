@@ -5,6 +5,7 @@ const { INTERNAL_SERVER_ERROR, ACCEPTED, OK, NOT_FOUND } = StatusCodes;
 import { Request, Response } from 'express';
 import { KEYUTIL, KJUR, X509 } from 'jsrsasign';
 import fs from 'fs';
+import * as crypto from 'crypto';
 import * as config from '../config/config';
 import { Contract } from 'fabric-network';
 import { AssetNotFoundError } from '../utilities/errors';
@@ -17,11 +18,14 @@ class DocumentsController {
     const redis = Redis.getInstance();
     const userId = user.userId as string;
     const mspId = user.mspId as string;
-    const files = req.files as Record<string, unknown>;
-    const document = files.document as Record<string, unknown>;
-    const documentHash = document.md5 as string;
+    // const files = req.files as Record<string, unknown>;
+    const clientId = req.body.clientId as string;
+    // const document = files.document as Record<string, unknown>;
+    // const documentHash = document ? (document.md5 as string) : crypto.randomBytes(32).toString('hex');
+    const documentHash = crypto.randomBytes(16).toString('hex');
     const userCredentials = await user.loadUserCredentials();
     const privateKey = userCredentials.privateKey as string;
+    const certificate = userCredentials.certificate as string;
 
     const sig = new KJUR.crypto.Signature({ alg: 'SHA256withECDSA' });
     sig.init(privateKey, '');
@@ -38,7 +42,9 @@ class DocumentsController {
         documentHash,
         userId,
         mspId,
+        certificate,
         sigValueBase64,
+        clientId,
         new Date().toISOString()
       );
 
@@ -60,16 +66,16 @@ class DocumentsController {
 
   public validateDocument = async (req: Request, res: Response) => {
     const user = req.user as User;
-    // const docIssuerId = req.body.docIssuerId as string;
 
-    const files = req.files as Record<string, unknown>;
-    const document = files.document as Record<string, unknown>;
-    const documentHash = document.md5 as string;
+    // const files = req.files as Record<string, unknown>;
+    // const document = files.document as Record<string, unknown>;
+    // const documentHash = document.md5 as string;
+    const documentHash = req.body.document as string;
     const caCert = fs.readFileSync(config.fabricCaCertPath, 'utf8');
     const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
 
     try {
-      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDoc', documentHash);
+      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentByHash', documentHash);
       const documents = JSON.parse(data.toString());
 
       if (!documents.length) {
@@ -80,23 +86,21 @@ class DocumentsController {
       }
       const document = documents.slice(-1)[0];
 
-      // TODO create doc issuer object
-      // TODO load doc issuer credentials
-      // const docIssuerCert = docIssuerCredentials ? (docIssuerCredentials.certificate as string) : '';
-      // const certObj = new X509();
-      // certObj.readCertPEM(docIssuerCert);
+      const docIssuerCert = document.certificate as string;
+      const certObj = new X509();
+      certObj.readCertPEM(docIssuerCert);
 
-      // const userPublicKey = KEYUTIL.getKey(docIssuerCert);
-      // const recover = new KJUR.crypto.Signature({ alg: 'SHA256withECDSA' });
-      // recover.init(userPublicKey);
-      // recover.updateHex(documentHash);
-      // const getBackSigValueHex = new Buffer(document.signature, 'base64').toString('hex');
+      const userPublicKey = KEYUTIL.getKey(docIssuerCert);
+      const recover = new KJUR.crypto.Signature({ alg: 'SHA256withECDSA' });
+      recover.init(userPublicKey);
+      recover.updateHex(documentHash);
+      const getBackSigValueHex = new Buffer(document.signature, 'base64').toString('hex');
 
       return res.status(OK).json({
-        // subject: certObj.getSubjectString(),
-        // subjects_issuer_ca: certObj.getIssuerString(),
-        // ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
-        // verified_document: recover.verify(getBackSigValueHex),
+        subject: certObj.getSubjectString(),
+        subjects_issuer_ca: certObj.getIssuerString(),
+        ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
+        verified_document: recover.verify(getBackSigValueHex),
         signature: document.signature,
       });
     } catch (err) {
@@ -109,13 +113,11 @@ class DocumentsController {
   };
 
   public getDocument = async (req: Request, res: Response) => {
-    const documentHash = req.params.documentHash;
     try {
       const user = req.user as User;
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
-      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDoc', documentHash);
+      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentByClient', user.userId);
       const documents = JSON.parse(data.toString());
-
       return res.status(OK).json(documents);
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s');

@@ -11,7 +11,20 @@ class QueryUtils {
         this.name = listName;
     }
 
-    async queryDocument(hash) {
+    async queryDocumentByClient(client) {
+        let self = this;
+        if (arguments.length < 1) {
+            throw new Error('Incorrect number of arguments. Expecting document hash.');
+        }
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.client = client;
+
+        let method = self.getQueryResultForQueryString;
+        return await method(this.ctx, self, JSON.stringify(queryString));
+    }
+
+    async queryDocumentByHash(hash) {
         let self = this;
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting document hash.');
@@ -19,13 +32,11 @@ class QueryUtils {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.hash = hash;
-        // if (issuer) {
-        //     queryString.selector.issuer = issuer;
-        // }
 
         let method = self.getQueryResultForQueryString;
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
+
 
     async getQueryResultForQueryString(ctx, self, queryString) {
         const resultsIterator = await ctx.stub.getQueryResult(queryString);
