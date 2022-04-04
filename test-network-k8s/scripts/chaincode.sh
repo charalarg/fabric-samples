@@ -5,7 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-function package_chaincode() {
+function package_chaincode_for() {
+  local org=$1
   local cc_folder="chaincode/${CHAINCODE_NAME}"
   local build_folder="build/chaincode"
   local cc_archive="${build_folder}/${CHAINCODE_NAME}.tgz"
@@ -21,37 +22,23 @@ function package_chaincode() {
   pop_fn
 }
 
-# Copy the chaincode archive from the local host to the org admin
-function transfer_chaincode_archive_for() {
-  local org=$1
-  local cc_archive="build/chaincode/${CHAINCODE_NAME}.tgz"
-  push_fn "Transferring chaincode archive to ${org}"
-
-  # Like kubectl cp, but targeted to a deployment rather than an individual pod.
-  tar cf - ${cc_archive} | kubectl -n $NS exec -i deploy/${org}-admin-cli -c main -- tar xvf -
-
-  pop_fn
-}
-
 function install_chaincode_for() {
   local org=$1
   local peer=$2
-  push_fn "Installing chaincode for org ${org}  peer ${peer}"
+  push_fn "Installing chaincode for org ${org} peer ${peer}"
 
-  # Install the chaincode
-  echo 'set -x
-  export CORE_PEER_ADDRESS='${org}'-'${peer}':7051
-  peer lifecycle chaincode install build/chaincode/'${CHAINCODE_NAME}'.tgz
-  ' | exec kubectl -n $NS exec deploy/${org}-admin-cli -c main -i -- /bin/bash
+  export_peer_context $org $peer
+
+  peer lifecycle chaincode install build/chaincode/${CHAINCODE_NAME}.tgz
 
   pop_fn
 }
 
 function launch_chaincode_service() {
   local org=$1
-  local cc_id=$2
-  local cc_image=$3
-  local peer=$4
+  local peer=$2
+  local cc_id=$3
+  local cc_image=$4
   push_fn "Launching chaincode container \"${cc_image}\""
 
   # The chaincode endpoint needs to have the generated chaincode ID available in the environment.
@@ -71,89 +58,72 @@ function launch_chaincode_service() {
 
 function activate_chaincode_for() {
   local org=$1
-  local cc_id=$2
-  push_fn "Activating chaincode ${CHAINCODE_ID}"
+  local peer=$2
+  local cc_id=$3
+  push_fn "Activating $org chaincode ${CHAINCODE_ID}"
 
-  echo 'set -x 
-  export CORE_PEER_ADDRESS='${org}'-peer1:7051
-  
+  export_peer_context $org $peer
+
   peer lifecycle \
     chaincode approveformyorg \
-    --channelID '${CHANNEL_NAME}' \
-    --name '${CHAINCODE_NAME}' \
-    --version '${CHAINCODE_VERSION}' \
-    --package-id '${cc_id}' \
-    --sequence '${CHAINCODE_VERSION}' \
-    -o org0-orderer1:6050 \
-    --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem
-  ' | exec kubectl -n $NS exec deploy/${org}-admin-cli -c main -i -- /bin/bash
-
-  pop_fn
-}
-
-
-function commit_chaincode(){
-  local org=$1
-  local cc_id=$2
-  push_fn "Commiting chaincode ${CHAINCODE_ID}"
-
-  echo 'set -x
-  export CORE_PEER_ADDRESS='${org}'-peer1:7051
+    --channelID     ${CHANNEL_NAME} \
+    --name          ${CHAINCODE_NAME} \
+    --version       ${CHAINCODE_VERSION} \
+    --package-id    ${cc_id} \
+    --sequence      ${CHAINCODE_VERSION} \
+    --orderer       org0-orderer1.${DOMAIN}:443 \
+    --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
 
   peer lifecycle \
     chaincode commit \
-    --channelID '${CHANNEL_NAME}' \
-    --name '${CHAINCODE_NAME}' \
-    --version '${CHAINCODE_VERSION}' \
-    --sequence '${CHAINCODE_VERSION}' \
-    -o org0-orderer1:6050 \
-    --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem
-  ' | exec kubectl -n $NS exec deploy/${org}-admin-cli -c main -i -- /bin/bash
+    --channelID     ${CHANNEL_NAME} \
+    --name          ${CHAINCODE_NAME} \
+    --version       ${CHAINCODE_VERSION} \
+    --sequence      ${CHAINCODE_VERSION} \
+    --orderer       org0-orderer1.${DOMAIN}:443 \
+    --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
 
   pop_fn
 }
 
 function query_chaincode() {
   set -x
-  # todo: mangle additional $@ parameters with bash escape quotations
-  echo '
-  export CORE_PEER_ADDRESS=org1-peer1:7051
-  peer chaincode query -n '${CHAINCODE_NAME}' -C '${CHANNEL_NAME}' -c '"'$@'"'
-  ' | exec kubectl -n $NS exec deploy/org1-admin-cli -c main -i -- /bin/bash
+
+  export_peer_context org1 peer1
+
+  peer chaincode query \
+    -n  $CHAINCODE_NAME \
+    -C  $CHANNEL_NAME \
+    -c  $@
 }
 
 function query_chaincode_metadata() {
   set -x
   local args='{"Args":["org.hyperledger.fabric:GetMetadata"]}'
-  # todo: mangle additional $@ parameters with bash escape quotations
+
+  log ''
   log 'Org1-Peer1:'
-  echo '
-  export CORE_PEER_ADDRESS=org1-peer1:7051
-  peer chaincode query -n '${CHAINCODE_NAME}' -C '${CHANNEL_NAME}' -c '"'$args'"'
-  ' | exec kubectl -n $NS exec deploy/org1-admin-cli -c main -i -- /bin/bash
+  export_peer_context org1 peer1
+  peer chaincode query -n $CHAINCODE_NAME -C $CHANNEL_NAME -c $args
 
   log ''
   log 'Org1-Peer2:'
-  echo '
-  export CORE_PEER_ADDRESS=org1-peer2:7051
-  peer chaincode query -n '${CHAINCODE_NAME}' -C '${CHANNEL_NAME}' -c '"'$args'"'
-  ' | exec kubectl -n $NS exec deploy/org1-admin-cli -c main -i -- /bin/bash
-
+  export_peer_context org1 peer2
+  peer chaincode query -n $CHAINCODE_NAME -C $CHANNEL_NAME -c $args
 }
 
 function invoke_chaincode() {
   # set -x
   # todo: mangle additional $@ parameters with bash escape quotations
-  echo '
-  export CORE_PEER_ADDRESS=org1-peer1:7051
-  peer chaincode \
-    invoke \
-    -o org0-orderer1:6050 \
-    --tls --cafile /var/hyperledger/fabric/organizations/ordererOrganizations/org0.example.com/msp/tlscacerts/org0-tls-ca.pem \
-    -n '${CHAINCODE_NAME}' \
-    -C '${CHANNEL_NAME}' \
-    -c '"'$@'"'
-  ' | exec kubectl -n $NS exec deploy/org1-admin-cli -c main -i -- /bin/bash
+
+  export_peer_context org1 peer1
+
+  peer chaincode invoke \
+    -n              $CHAINCODE_NAME \
+    -C              $CHANNEL_NAME \
+    -c              $@ \
+    --orderer       org0-orderer1.${DOMAIN}:443 \
+    --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
 
   sleep 2
 }
@@ -171,9 +141,10 @@ function set_chaincode_id() {
 
 # Package and install the chaincode, but do not activate.
 function install_chaincode() {
-  local org=$1
+  local org=org1
 
-  transfer_chaincode_archive_for ${org}
+  package_chaincode_for ${org}
+
   install_chaincode_for ${org} peer1
   install_chaincode_for ${org} peer2
 
@@ -182,27 +153,23 @@ function install_chaincode() {
 
 # Activate the installed chaincode but do not package/install a new archive.
 function activate_chaincode() {
-  local org=$1
+  set -x
 
   set_chaincode_id
-  activate_chaincode_for ${org} $CHAINCODE_ID
+  activate_chaincode_for org1 peer1 $CHAINCODE_ID
+
+  # jdk: does activation on a single peer apply to all peers in the org?  This is an error:
+#  activate_chaincode_for org1 peer1 $CHAINCODE_ID
+
 }
 
 # Install, launch, and activate the chaincode
 function deploy_chaincode() {
   set -x
 
-  package_chaincode
-  install_chaincode org1
-  install_chaincode org2
-  launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1
-  launch_chaincode_service org1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer2
-  launch_chaincode_service org2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer1
-  launch_chaincode_service org2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE peer2
-  activate_chaincode org1
-  activate_chaincode org2
-
-  #only needs for one org
-  commit_chaincode org1 $CHAINCODE_ID
+  install_chaincode
+  launch_chaincode_service org1 peer1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE
+  launch_chaincode_service org1 peer2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE
+  activate_chaincode
 }
 
