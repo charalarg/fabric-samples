@@ -118,6 +118,7 @@ class DocumentsController {
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
       const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentByClient', user.userId);
       const documents = JSON.parse(data.toString());
+      documents.map((doc: Record<string, unknown>) => delete doc.certificate);
       return res.status(OK).json(documents);
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s');

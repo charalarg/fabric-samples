@@ -149,6 +149,7 @@ function deploy_application() {
 
 
 function application_connection() {
+  kubectl -n $NS delete deploy/application-deployment
   construct_application_configmap
   deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE} ${MONGO_IMAGE}
 }
