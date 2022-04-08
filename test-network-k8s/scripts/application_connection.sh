@@ -44,11 +44,6 @@ function construct_application_configmap() {
 
   echo "$(json_ccp 1 $peer_pem $ca_pem)" > build/application/gateway/org1_ccp.json
 
-#  peer_pem=$CHANNEL_MSP_DIR/peerOrganizations/org2/msp/tlscacerts/tlsca-signcert.pem
-#  ca_pem=$CHANNEL_MSP_DIR/peerOrganizations/org2/msp/cacerts/ca-signcert.pem
-#
-#  echo "$(json_ccp 2 $peer_pem $ca_pem)" > build/application/gateway/org2_ccp.json
-
   pop_fn
 
   push_fn "Getting Application Identities"
@@ -57,11 +52,6 @@ function construct_application_configmap() {
   local pk=$ENROLLMENT_DIR/org1/users/org1admin/msp/keystore/key.pem
 
   echo "$(app_id Org1MSP $cert $pk)" > build/application/wallet/org1-admin.id
-
-#  local cert=$ENROLLMENT_DIR/org2/users/org2admin/msp/signcerts/cert.pem
-#  local pk=$ENROLLMENT_DIR/org2/users/org2admin/msp/keystore/key.pem
-#
-#  echo "$(app_id Org2MSP $cert $pk)" > build/application/wallet/appuser_org2.id
 
   pop_fn
 
@@ -82,13 +72,9 @@ function construct_application_configmap() {
 
   push_fn "Creating ConfigMap \"app-fabric-org1-cacerts-v1-map\" with org1 cacert"
   kubectl -n $NS delete configmap app-fabric-org1-cacerts-v1-map || true
-  kubectl -n $NS create configmap app-fabric-org1-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org1.example.com/msp/cacerts
+  kubectl -n $NS create configmap app-fabric-org1-cacerts-v1-map --from-file=$CHANNEL_MSP_DIR/peerOrganizations/org1/msp/cacerts
   pop_fn
 
-#  push_fn "Creating ConfigMap \"app-fabric-org2-cacerts-v1-map\" with org2 cacert"
-#  kubectl -n $NS delete configmap app-fabric-org2-cacerts-v1-map || true
-#  kubectl -n $NS create configmap app-fabric-org2-cacerts-v1-map --from-file=./build/msp/organizations/peerOrganizations/org2.example.com/msp/cacerts
-#  pop_fn
 
   push_fn "Creating ConfigMap \"app-fabric-org1-v1-map\" with Organization 1 information for the application"
 
@@ -105,15 +91,11 @@ data:
   fabric_ccp_name: org1_ccp.json
   fabric_app_admin: org1-admin
   fabric_app_pass: adminpw
-#  fabric_gateway_tlsCertPath: /fabric/tlscacerts/org1-tls-ca.pem
-  fabric_ca_cert: /fabric/cacerts/org1-ca.pem
+  fabric_ca_cert: /fabric/cacerts/ca-signcert.pem
+  fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
   ca_host_name: org1-ca
   org: Org1
   mspid: Org1MSP
-#  fabric_gateway_hostport: org1-peer-gateway-svc:7051
-#  fabric_gateway_sslHostOverride: org1-peer-gateway-svc
-#  fabric_user: appuser_org1
-  fabric_gateway_tlsCertPath: /fabric/tlscacerts/tlsca-signcert.pem
 EOF
 
   kubectl -n $NS apply -f build/app-fabric-org1-v1-map.yaml
@@ -144,7 +126,7 @@ function deploy_application() {
 
 
 function application_connection() {
-  kubectl -n $NS delete deploy/application-deployment
+  kubectl -n $NS delete deploy/application-deployment --ignore-not-found=true
   construct_application_configmap
   deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE} ${MONGO_IMAGE}
 }

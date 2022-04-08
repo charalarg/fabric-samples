@@ -93,7 +93,7 @@ spec:
               mountPath: /var/hyperledger/fabric/config/tls
               readOnly: true
         - name: ledger
-          image: {{COUCHDB_IMAGE}}
+          image: ${COUCHDB_IMAGE}
           env:
             - name: COUCHDB_USER
               value: "admin"

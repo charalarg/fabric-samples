@@ -11,6 +11,7 @@ import { Contract } from 'fabric-network';
 import { AssetNotFoundError } from '../utilities/errors';
 import User from '../services/users.service';
 import Redis from '../services/redis.service';
+import { Role } from '../models/user.model';
 
 class DocumentsController {
   public createDocument = async (req: Request, res: Response) => {
@@ -75,7 +76,7 @@ class DocumentsController {
     const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
 
     try {
-      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentByHash', documentHash);
+      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentsByHash', documentHash);
       const documents = JSON.parse(data.toString());
 
       if (!documents.length) {
@@ -113,10 +114,17 @@ class DocumentsController {
   };
 
   public getDocument = async (req: Request, res: Response) => {
+    const roleToTransactionMap: { [index: string]: string } = {
+      Admin: 'queryDocumentsByIssuer',
+      User: 'queryDocumentsByClient',
+    };
+
     try {
       const user = req.user as User;
+      const userRole = user.role as Role;
+      const transactionName = roleToTransactionMap[userRole];
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
-      const data = await user.fabricSvc.evaluateTransaction(contract, 'queryDocumentByClient', user.userId);
+      const data = await user.fabricSvc.evaluateTransaction(contract, transactionName, user.userId);
       const documents = JSON.parse(data.toString());
       documents.map((doc: Record<string, unknown>) => delete doc.certificate);
       return res.status(OK).json(documents);

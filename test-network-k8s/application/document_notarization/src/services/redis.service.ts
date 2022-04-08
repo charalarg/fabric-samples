@@ -186,8 +186,9 @@ class Redis {
         transactionError = returnValue.transactionError;
       }
 
-      if (returnValue.transactionPayload && returnValue.transactionPayload.length > 0) {
-        transactionPayload = returnValue.transactionPayload.toString();
+      if (returnValue.transactionPayload) {
+        const data = JSON.parse(JSON.stringify(returnValue.transactionPayload)).data;
+        transactionPayload = JSON.parse(String.fromCharCode.apply(null, data));
       } else {
         transactionPayload = '';
       }

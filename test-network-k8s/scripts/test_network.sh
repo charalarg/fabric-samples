@@ -186,7 +186,7 @@ function build_and_push_images_locally() {
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${CHAINCODE_IMAGE}
   elif [ "${image}" == "app" ]; then
       docker rmi $(docker images | grep ${APP_NAME}) --force || true
-      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME}
+      docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME} --no-cache
       docker tag ${APP_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
   fi

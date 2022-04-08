@@ -16,7 +16,7 @@ class JobsRouter {
   }
 
   private initializeRoutes() {
-    this.router.post(this.path + ':jobId', authenticateApiKey, this.jobsController.getJob);
+    this.router.get(this.path + ':jobId', authenticateApiKey, this.jobsController.getJob);
   }
 }
 

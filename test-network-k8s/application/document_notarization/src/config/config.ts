@@ -29,8 +29,8 @@ export const queryTimeout = env.get('hlf_query_timeout').default('3').example('3
 export const fabricWalletDir = env.get('fabric_wallet_dir').default('/fabric/application/wallet').example('/path/to/wallets').asString();
 export const fabricGatewayDir = env.get('fabric_gateway_dir').default('/fabric/application/gateway').example('/path/to/gateway').asString();
 export const fabric_ccp_name = env.get('fabric_ccp_name').default('org_ccp.json').example('org_ccp.json').asString();
-export const fabricGatewayTlsCertPath = env.get('fabric_gateway_tlsCertPath').default('/fabric/tlscacerts/org-tls-ca.pem').example('/path/to/tlscsert').asString();
-export const fabricCaCertPath = env.get('fabric_ca_cert').default('/fabric/cacerts/org-ca.pem').example('/fabric/cacerts/org-ca.pem').asString();
+export const fabricGatewayTlsCertPath = env.get('fabric_gateway_tlsCertPath').default('/fabric/tlscacerts/tlsca-signcert.pem').example('/fabric/tlscacerts/tlsca-signcert.pem').asString();
+export const fabricCaCertPath = env.get('fabric_ca_cert').default('/fabric/cacerts/ca-signcert.pem').example('/fabric/cacerts/ca-signcert.pem').asString();
 export const fabricAppAdmin = env.get('fabric_app_admin').default('org-admin').example('org-admin').asString();
 export const fabricAppPass = env.get('fabric_app_pass').default('adminpw').example('12345!@#$%').asString();
 // Redis

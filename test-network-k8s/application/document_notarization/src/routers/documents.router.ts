@@ -18,7 +18,7 @@ class DocumentsRouter {
     this.router.post(
       this.path,
       authenticateApiKey,
-      allowRoles([Role.OrgAdmin]),
+      allowRoles([Role.Admin]),
       body().isObject().withMessage('body must contain an document object'),
       validateStructure,
       this.documentsController.createDocument
@@ -35,7 +35,7 @@ class DocumentsRouter {
     this.router.get(
       this.path,
       authenticateApiKey,
-      allowRoles([Role.User]),
+      allowRoles([Role.Admin, Role.User]),
       this.documentsController.getDocument
     );
   }
