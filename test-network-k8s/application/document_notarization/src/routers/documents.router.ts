@@ -1,7 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { validateStructure } from '../middlewares/validate';
-import { allowRoles, authenticateApiKey } from '../middlewares/auth';
+import { allowRoles, authenticateApiKey, publicFacing } from '../middlewares/auth';
 import DocumentsController from '../controllers/documents.controller';
 import { Role } from '../models/user.model';
 
@@ -26,7 +26,7 @@ class DocumentsRouter {
 
     this.router.post(
       this.path + 'validate',
-      authenticateApiKey,
+      publicFacing(),
       body().isObject().withMessage('body must contain an document object'),
       validateStructure,
       this.documentsController.validateDocument

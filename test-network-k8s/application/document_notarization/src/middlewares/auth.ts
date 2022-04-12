@@ -54,6 +54,11 @@ export const allowRoles = (roles: Role[]) => (req: Request, res: Response, next:
   return next();
 };
 
+export const publicFacing = () => async (req: Request, res: Response, next: NextFunction) => {
+  req.user = await User.build(config.fabricAppAdmin, config.mspid, Role.OrgAdmin);
+  return next();
+};
+
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction): void => {
   passport.authenticate('headerapikey', { session: false }, (err, user, _info) => {
     if (err) return next(err);
