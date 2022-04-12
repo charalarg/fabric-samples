@@ -116,7 +116,7 @@ function deploy_application() {
     | sed 's,{{APP_IMAGE}},'${app_image}',g' \
     | sed 's,{{REDIS_IMAGE}},'${redis_image}',g' \
     | sed 's,{{MONGO_IMAGE}},'${mongo_image}',g' \
-    | sed 's,{{APP_STORE_PVC}},fabric-org1 ,g' \
+    | sed 's,{{APP_STORE_PVC}},fabric-org1-app ,g' \
     | exec kubectl -n $NS apply -f -
 
   kubectl -n $NS rollout status deploy/application-deployment
@@ -127,6 +127,8 @@ function deploy_application() {
 
 function application_connection() {
   kubectl -n $NS delete deploy/application-deployment --ignore-not-found=true
+  kubectl create -f kube/pv-fabric-org1-app.yaml || true
+  kubectl -n $NS create -f kube/pvc-fabric-org1-app.yaml || true
   construct_application_configmap
   deploy_application ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE} ${REDIS_IMAGE} ${MONGO_IMAGE}
 }

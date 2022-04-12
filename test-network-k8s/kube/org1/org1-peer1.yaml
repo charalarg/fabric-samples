@@ -102,10 +102,10 @@ spec:
               value: "adminpw"
           ports:
             - containerPort: 5984
-          volumeMounts:
-            - name: fabric-volume
-              mountPath: /opt/couchdb/data
-              subPath: state/org1/peer1-couchdb
+#          volumeMounts:
+#            - name: fabric-volume
+#              mountPath: /opt/couchdb/data
+#              subPath: state/org1/peer1-couchdb
       volumes:
         - name: fabric-volume
           persistentVolumeClaim:

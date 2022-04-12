@@ -47,22 +47,18 @@ spec:
           image: {{REDIS_IMAGE}}
           ports:
             - containerPort: 6379
+          volumeMounts:
+            - name: app-store
+              mountPath: /data
         - name: mongo
           image: {{MONGO_IMAGE}}
           imagePullPolicy: Always
           ports:
             - containerPort: 27017
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: "admin"
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: "adminpw"
-            - name: MONGO_INITDB_DATABASE
-              value: "docNotarizationDb"
           volumeMounts:
             - name: app-store
               mountPath: /data/db
-              subPath: offchain/data
+              subPath: db
             - name: mongo-init-script
               mountPath: /docker-entrypoint-initdb.d
       volumes:
@@ -81,8 +77,6 @@ spec:
         - name: fabricids
           hostPath:
             path: /test-network-k8s/build/application/wallet
-#          configMap:
-#            name: app-fabric-ids-v1-map
         - name: tlscerts
           configMap:
             name: app-fabric-tls-v1-map

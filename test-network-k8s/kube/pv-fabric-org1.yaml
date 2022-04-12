@@ -13,7 +13,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   hostPath:
     path: /var/hyperledger/org1.example.com
 ---
