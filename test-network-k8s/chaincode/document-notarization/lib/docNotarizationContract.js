@@ -39,24 +39,33 @@ class DocNotarizationContract extends Contract {
         return document;
     }
 
-    async queryDocumentsByClient(ctx, client) {
-        let query = new QueryUtils(ctx, 'org.avangard.documents');
-        return await query.queryDocumentsByClient(client);
-    }
-
     async queryDocumentByHash(ctx, hash) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
-        return await query.queryDocumentsByHash(hash);
+        const docs =  await query.queryDocumentsByHash(hash);
+        return await this.appendDocHistory(query, docs);
+    }
+
+    async queryDocumentsByClient(ctx, client) {
+        let query = new QueryUtils(ctx, 'org.avangard.documents');
+        const docs =  await query.queryDocumentsByClient(client);
+        return await this.appendDocHistory(query, docs);
     }
 
     async queryDocumentsByIssuer(ctx, issuer) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
-        return await query.queryDocumentsByIssuer(issuer);
+        const docs = await query.queryDocumentsByIssuer(issuer);
+        return await this.appendDocHistory(query, docs);
     }
 
     async queryDocumentHistory(ctx, hash, timestamp) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
         return await query.queryDocumentHistory(hash, timestamp);
+    }
+
+    async appendDocHistory(query, docs) {
+        return await Promise.all(docs.map(async doc => {
+            return {...doc, transaction_ids: await query.queryDocumentHistory(doc.Record.hash, doc.Record.timestamp)};
+        }));
     }
 
 }

@@ -13,6 +13,12 @@ import User from '../services/users.service';
 import Redis from '../services/redis.service';
 import { Role } from '../models/user.model';
 
+export type DocType = {
+  Key: string;
+  Record: Record<string, unknown>;
+  transaction_ids: string[];
+};
+
 class DocumentsController {
   public createDocument = async (req: Request, res: Response) => {
     const user = req.user as User;
@@ -46,7 +52,7 @@ class DocumentsController {
         certificate,
         sigValueBase64,
         clientId,
-        new Date().toISOString()
+        new Date().getTime().toString()
       );
 
       return res.status(ACCEPTED).json({
@@ -85,7 +91,7 @@ class DocumentsController {
           timestamp: new Date().toISOString(),
         });
       }
-      const document = documents.slice(-1)[0];
+      const document = documents.slice(-1)[0].Record;
 
       const docIssuerCert = document.certificate as string;
       const certObj = new X509();
@@ -126,7 +132,7 @@ class DocumentsController {
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
       const data = await user.fabricSvc.evaluateTransaction(contract, transactionName, user.userId);
       const documents = JSON.parse(data.toString());
-      documents.map((doc: Record<string, unknown>) => delete doc.certificate);
+      documents.map((doc: DocType) => delete doc.Record.certificate);
       return res.status(OK).json(documents);
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s');

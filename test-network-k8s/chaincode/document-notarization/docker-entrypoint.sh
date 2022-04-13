@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 set -euo pipefail
-: ${DEBUG:="true"}
+: ${DEBUG:="false"}
 
 if [ "${DEBUG,,}" = "true" ]; then
    npm run debug-server

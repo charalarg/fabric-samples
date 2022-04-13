@@ -11,19 +11,6 @@ class QueryUtils {
         this.name = listName;
     }
 
-    async queryDocumentsByClient(client) {
-        let self = this;
-        if (arguments.length < 1) {
-            throw new Error('Incorrect number of arguments. Expecting client id.');
-        }
-        let queryString = {};
-        queryString.selector = {};
-        queryString.selector.client = client;
-
-        let method = self.getQueryResultForQueryString;
-        return await method(this.ctx, self, JSON.stringify(queryString));
-    }
-
     async queryDocumentsByHash(hash) {
         let self = this;
         if (arguments.length < 1) {
@@ -37,17 +24,18 @@ class QueryUtils {
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
 
-    async queryDocumentHistory(hash, timestamp) {
+    async queryDocumentsByClient(client) {
         let self = this;
-        if (arguments.length < 2) {
-            throw new Error('Incorrect number of arguments. Expecting document hash and timestamp.');
+        if (arguments.length < 1) {
+            throw new Error('Incorrect number of arguments. Expecting client id.');
         }
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.client = client;
 
-        let key = await this.ctx.stub.createCompositeKey(this.name, [hash, timestamp]);
-        let method = self.getQueryHistoryResultForKey;
-        return await method(this.ctx, self, JSON.stringify(key));
+        let method = self.getQueryResultForQueryString;
+        return await method(this.ctx, self, JSON.stringify(queryString));
     }
-
 
     async queryDocumentsByIssuer(issuer) {
         let self = this;
@@ -62,35 +50,88 @@ class QueryUtils {
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
 
+    async queryDocumentHistory(hash, timestamp) {
+        let self = this;
+        if (arguments.length < 2) {
+            throw new Error('Incorrect number of arguments. Expecting document hash and timestamp.');
+        }
+        let key = this.ctx.stub.createCompositeKey(this.name, [hash, timestamp]);
+        let method = self.getQueryHistoryResultForKey;
+        const history =  await method(this.ctx, self, key);
+        return await Promise.all(history.map(async tr => {
+            return tr.TxId;
+        }));
+    }
+
     async getQueryResultForQueryString(ctx, self, queryString) {
-        const resultsIterator = await ctx.stub.getQueryResult(queryString);
-        return await self._GetAllResults(resultsIterator);
+        let queryIterator = await ctx.stub.getQueryResult(queryString);
+        return await self._GetAllResults(queryIterator);
     }
 
     async getQueryHistoryResultForKey (ctx, self, key) {
-        const resultsIterator = await ctx.stub.getHistoryForKey(key);
-        return await self._GetAllResults(resultsIterator);
+        let historyIterator = await ctx.stub.getHistoryForKey(key);
+        return await self._GetAllResults(historyIterator, true);
     }
 
-    async _GetAllResults(iterator) {
+    async _GetAllResults(iterator, isHistory) {
         let allResults = [];
-        let res = await iterator.next();
-        while (!res.done) {
+        let res = { done: false, value: null };
+
+        while (true) {
+            res = await iterator.next();
+            let jsonRes = {};
             if (res.value && res.value.value.toString()) {
-                let jsonRes = {};
-                {
+                if (isHistory && isHistory === true) {
+                    jsonRes.TxId = res.value.txId;
+                    jsonRes.Timestamp = res.value.timestamp;
+                    jsonRes.Timestamp = new Date((res.value.timestamp.seconds.low * 1000));
+                    let ms = res.value.timestamp.nanos / 1000000;
+                    jsonRes.Timestamp.setMilliseconds(ms);
+                    if (res.value.is_delete) {
+                        jsonRes.IsDelete = res.value.is_delete.toString();
+                    } else {
+                        try {
+                            jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+                            switch (jsonRes.Value.currentState) {
+                            case 1:
+                                jsonRes.Value.currentState = 'ISSUED';
+                                break;
+                            case 2:
+                                jsonRes.Value.currentState = 'PENDING';
+                                break;
+                            case 3:
+                                jsonRes.Value.currentState = 'TRADING';
+                                break;
+                            case 4:
+                                jsonRes.Value.currentState = 'REDEEMED';
+                                break;
+                            default:
+                                jsonRes.Value.currentState = 'UNKNOWN';
+                            }
+
+                        } catch (err) {
+                            console.log(err);
+                            jsonRes.Value = res.value.value.toString('utf8');
+                        }
+                    }
+                } else {
+                    jsonRes.Key = res.value.key;
                     try {
-                        jsonRes = JSON.parse(res.value.value.toString());
+                        jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
                     } catch (err) {
-                        jsonRes = res.value.value.toString();
+                        console.log(err);
+                        jsonRes.Record = res.value.value.toString('utf8');
                     }
                 }
                 allResults.push(jsonRes);
             }
-            res = await iterator.next();
+            if (res.done) {
+                console.log('iterator is done');
+                await iterator.close();
+                return allResults;
+            }
+
         }
-        iterator.close();
-        return allResults;
     }
 }
 
