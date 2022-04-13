@@ -12,6 +12,7 @@
         "pretest": "npm run lint",
         "test": "nyc mocha --recursive",
         "start": "fabric-chaincode-node start",
+        "debug-server": "set -x && NODE_OPTIONS='--inspect-brk=0.0.0.0:9228' fabric-chaincode-node server --chaincode-address=$CHAINCODE_SERVER_ADDRESS --chaincode-id=$CHAINCODE_ID",
         "start-server": "set -x && fabric-chaincode-node server --chaincode-address=$CHAINCODE_SERVER_ADDRESS --chaincode-id=$CHAINCODE_ID"
     },
     "engineStrict": true,

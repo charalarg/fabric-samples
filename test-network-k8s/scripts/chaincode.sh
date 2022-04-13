@@ -39,6 +39,7 @@ function launch_chaincode_service() {
   local peer=$2
   local cc_id=$3
   local cc_image=$4
+  local debug_port=$5
   push_fn "Launching chaincode container \"${cc_image}\""
 
   # The chaincode endpoint needs to have the generated chaincode ID available in the environment.
@@ -49,6 +50,7 @@ function launch_chaincode_service() {
     | sed 's,{{CHAINCODE_ID}},'${cc_id}',g' \
     | sed 's,{{CHAINCODE_IMAGE}},'${cc_image}',g' \
     | sed 's,{{PEER_NAME}},'${peer}',g' \
+    | sed 's,{{DEBUG_PORT}},'${debug_port}',g' \
     | exec kubectl -n $NS apply -f -
 
   kubectl -n $NS rollout status deploy/${org}${peer}-cc-${CHAINCODE_NAME}
@@ -168,8 +170,8 @@ function deploy_chaincode() {
   set -x
 
   install_chaincode
-  launch_chaincode_service org1 peer1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE
-  launch_chaincode_service org1 peer2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE
+  launch_chaincode_service org1 peer1 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE 30028
+  launch_chaincode_service org1 peer2 $CHAINCODE_ID ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/$CHAINCODE_IMAGE 30027
   activate_chaincode
 }
 

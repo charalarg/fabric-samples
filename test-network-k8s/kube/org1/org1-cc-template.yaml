@@ -29,6 +29,7 @@ spec:
               value: {{CHAINCODE_ID}}
           ports:
             - containerPort: 9999
+            - containerPort: 9228
 
 ---
 apiVersion: v1
@@ -40,5 +41,22 @@ spec:
     - name: chaincode
       port: 9999
       protocol: TCP
+    - name: chaincode-debugger
+      port: 9228
+      protocol: TCP
+  selector:
+    app: org1{{PEER_NAME}}-cc-{{CHAINCODE_NAME}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: org1{{PEER_NAME}}-cc-{{CHAINCODE_NAME}}-debugger
+spec:
+  type: NodePort
+  ports:
+    - name: chaincode-debugger
+      port: 9228
+      protocol: TCP
+      nodePort: {{DEBUG_PORT}}
   selector:
     app: org1{{PEER_NAME}}-cc-{{CHAINCODE_NAME}}

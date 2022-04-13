@@ -113,7 +113,7 @@ class DocumentsController {
     }
   };
 
-  public getDocument = async (req: Request, res: Response) => {
+  public getDocuments = async (req: Request, res: Response) => {
     const roleToTransactionMap: { [index: string]: string } = {
       Admin: 'queryDocumentsByIssuer',
       User: 'queryDocumentsByClient',

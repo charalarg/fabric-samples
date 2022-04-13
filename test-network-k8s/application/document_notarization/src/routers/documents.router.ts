@@ -36,7 +36,7 @@ class DocumentsRouter {
       this.path,
       authenticateApiKey,
       allowRoles([Role.Admin, Role.User]),
-      this.documentsController.getDocument
+      this.documentsController.getDocuments
     );
   }
 }

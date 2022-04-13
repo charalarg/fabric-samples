@@ -54,6 +54,11 @@ class DocNotarizationContract extends Contract {
         return await query.queryDocumentsByIssuer(issuer);
     }
 
+    async queryDocumentHistory(ctx, hash, timestamp) {
+        let query = new QueryUtils(ctx, 'org.avangard.documents');
+        return await query.queryDocumentHistory(hash, timestamp);
+    }
+
 }
 
 module.exports = DocNotarizationContract;

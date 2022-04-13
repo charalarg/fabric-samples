@@ -37,6 +37,18 @@ class QueryUtils {
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
 
+    async queryDocumentHistory(hash, timestamp) {
+        let self = this;
+        if (arguments.length < 2) {
+            throw new Error('Incorrect number of arguments. Expecting document hash and timestamp.');
+        }
+
+        let key = await this.ctx.stub.createCompositeKey(this.name, [hash, timestamp]);
+        let method = self.getQueryHistoryResultForKey;
+        return await method(this.ctx, self, JSON.stringify(key));
+    }
+
+
     async queryDocumentsByIssuer(issuer) {
         let self = this;
         if (arguments.length < 1) {
@@ -52,6 +64,11 @@ class QueryUtils {
 
     async getQueryResultForQueryString(ctx, self, queryString) {
         const resultsIterator = await ctx.stub.getQueryResult(queryString);
+        return await self._GetAllResults(resultsIterator);
+    }
+
+    async getQueryHistoryResultForKey (ctx, self, key) {
+        const resultsIterator = await ctx.stub.getHistoryForKey(key);
         return await self._GetAllResults(resultsIterator);
     }
 
