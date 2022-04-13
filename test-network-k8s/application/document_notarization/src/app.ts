@@ -11,6 +11,7 @@ import Redis from './services/redis.service';
 import helmet from 'helmet';
 import Mongo from './services/mongo.service';
 import UserModel, { Role } from './models/user.model';
+import cors from 'cors';
 
 class App {
   public app: express.Application;
@@ -57,6 +58,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    this.app.use(cors());
     this.app.use(helmet());
     this.app.use(loggerMiddleware);
     this.app.use(express.json({ verify: validateJson }));
