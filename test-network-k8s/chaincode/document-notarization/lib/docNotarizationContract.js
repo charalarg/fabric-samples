@@ -45,15 +45,15 @@ class DocNotarizationContract extends Contract {
         return await this.appendDocHistory(query, docs);
     }
 
-    async queryDocumentsByClient(ctx, client) {
+    async queryDocumentsByClient(ctx, client, clientFilter) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
         const docs =  await query.queryDocumentsByClient(client);
         return await this.appendDocHistory(query, docs);
     }
 
-    async queryDocumentsByIssuer(ctx, issuer) {
+    async queryDocumentsByIssuer(ctx, issuer, clientFilter) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
-        const docs = await query.queryDocumentsByIssuer(issuer);
+        const docs = await query.queryDocumentsByIssuer(issuer, clientFilter);
         return await this.appendDocHistory(query, docs);
     }
 

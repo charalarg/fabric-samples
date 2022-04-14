@@ -33,7 +33,7 @@ class DocumentsRouter {
     );
 
     this.router.get(
-      this.path,
+      this.path + ':client?',
       authenticateApiKey,
       allowRoles([Role.Admin, Role.User]),
       this.documentsController.getDocuments

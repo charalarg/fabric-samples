@@ -126,11 +126,17 @@ class DocumentsController {
     };
 
     try {
+      const clientFilter = req.params.client ? req.params.client : '';
       const user = req.user as User;
       const userRole = user.role as Role;
       const transactionName = roleToTransactionMap[userRole];
       const contract = user.fabricSvc.contracts.docNotarizationContract as Contract;
-      const data = await user.fabricSvc.evaluateTransaction(contract, transactionName, user.userId);
+      const data = await user.fabricSvc.evaluateTransaction(
+        contract,
+        transactionName,
+        user.userId,
+        clientFilter
+      );
       const documents = JSON.parse(data.toString());
       documents.map((doc: DocType) => delete doc.Record.certificate);
       return res.status(OK).json(documents);
