@@ -45,6 +45,8 @@ class UsersRouter {
       validateStructure,
       this.usersController.registerUser
     );
+
+    this.router.get(this.path, authenticateApiKey, allowRoles([Role.Admin]), this.usersController.getUsers);
   }
 }
 

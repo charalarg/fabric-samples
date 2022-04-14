@@ -31,8 +31,8 @@ class FabricAdmin extends Fabric {
       Admin: [{ name: 'hf.Registrar.Roles', value: 'client' }],
       User: [],
     };
-    const registrantIdentity = this.userIdentity as X509Identity;
-    const registrantId = this.userId as string;
+    const registrarIdentity = this.userIdentity as X509Identity;
+    const registrarId = this.userId as string;
 
     try {
       const wallet = await this.loadWallet();
@@ -43,8 +43,8 @@ class FabricAdmin extends Fabric {
         return;
       }
 
-      const provider = wallet.getProviderRegistry().getProvider(registrantIdentity.type);
-      const registrantUser = await provider.getUserContext(registrantIdentity, registrantId);
+      const provider = wallet.getProviderRegistry().getProvider(registrarIdentity.type);
+      const registrarUser = await provider.getUserContext(registrarIdentity, registrarId);
 
       const secret = await caClient.register(
         {
@@ -54,7 +54,7 @@ class FabricAdmin extends Fabric {
           role: 'client',
           attrs: roleToAttrsMap[userRole],
         },
-        registrantUser
+        registrarUser
       );
 
       const enrollment = await caClient.enroll({

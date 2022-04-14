@@ -10,17 +10,20 @@ export enum Role {
 
 interface IUser {
   userId: string;
+  registrarId: string;
   password: string;
   role: Role;
 }
 
 interface IUserModel extends Model<IUser> {
   findByCredentials(userId: string, password: string): Promise<IUser>;
-  createUser(userId: string, password: string, role: Role): Promise<VoidFunction>;
+  findByRegistrar(registrarId: string): Promise<IUser[]>;
+  createUser(userId: string, registrarId: string, password: string, role: Role): Promise<VoidFunction>;
 }
 
 const UserSchema = new Schema<IUser, IUserModel>({
   userId: { type: String, required: true, unique: true },
+  registrarId: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: Object.values(Role) },
 });
@@ -31,17 +34,15 @@ UserSchema.statics.findByCredentials = async (userId: string, password: string) 
   return isMatch ? user : null;
 };
 
-UserSchema.statics.createUser = async (userId: string, password: string, role: Role) => {
-  password = await hash(password, config.encSaltRounds);
-  await UserModel.findOneAndUpdate({ userId }, { userId, password, role }, { upsert: true });
+UserSchema.statics.findByRegistrar = async (registrarId: string) => {
+  const users = await UserModel.find({ registrarId });
+  return users ? users : [];
 };
 
-// UserSchema.pre('save', async function (next) {
-//   if (this.isModified('password')) {
-//     this.password = await hash(this.password, config.encSaltRounds);
-//   }
-//   return next();
-// });
+UserSchema.statics.createUser = async (userId: string, registrarId: string, password: string, role: Role) => {
+  password = await hash(password, config.encSaltRounds);
+  await UserModel.findOneAndUpdate({ userId }, { userId, registrarId, password, role }, { upsert: true });
+};
 
 const UserModel = model<IUser, IUserModel>('User', UserSchema, 'users');
 export default UserModel;

@@ -50,7 +50,12 @@ class App {
 
   private static async initDB() {
     await Mongo.getInstance();
-    await UserModel.createUser(config.fabricAppAdmin, config.fabricAppPass, Role.OrgAdmin);
+    await UserModel.createUser(
+      config.fabricAppAdmin,
+      config.fabricAppAdmin,
+      config.fabricAppPass,
+      Role.OrgAdmin
+    );
   }
 
   private initializeRoutes() {
