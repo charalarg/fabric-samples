@@ -14,7 +14,7 @@ export enum Gender {
   Other = 'Other',
 }
 
-interface IUser {
+export interface IUser {
   userId: string;
   registrarId: string;
   password: string;
@@ -28,6 +28,7 @@ interface IUser {
 
 interface IUserModel extends Model<IUser> {
   findByCredentials(userId: string, password: string): Promise<IUser>;
+  findByUserId(userId: string): Promise<IUser>;
   findByRegistrar(registrarId: string): Promise<IUser[]>;
   createUser(
     userI: string,
@@ -58,6 +59,11 @@ UserSchema.statics.findByCredentials = async (userId: string, password: string) 
   const user = await UserModel.findOne({ userId });
   const isMatch = user && user.password ? await compare(password, user.password) : false;
   return isMatch ? user : null;
+};
+
+UserSchema.statics.findByUserId = async (userId: string) => {
+  const user = await UserModel.findOne({ userId });
+  return user ? user : null;
 };
 
 UserSchema.statics.findByRegistrar = async (registrarId: string) => {

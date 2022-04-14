@@ -33,8 +33,8 @@ class DocNotarizationContract extends Contract {
     }
 
 
-    async issue(ctx, hash, issuer, mspId, certificate, signature, client, timestamp, title, expires) {
-        let document = Document.createInstance(hash, issuer, mspId, certificate, signature, client, timestamp, title, expires);
+    async issue(ctx, hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires) {
+        let document = Document.createInstance(hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires);
         await ctx.documentList.addDocument(document);
         return document;
     }
@@ -45,9 +45,9 @@ class DocNotarizationContract extends Contract {
         return await this.appendDocHistory(query, docs);
     }
 
-    async queryDocumentsByClient(ctx, client, clientFilter) {
+    async queryDocumentsByClient(ctx, clientId, clientFilter) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
-        const docs =  await query.queryDocumentsByClient(client);
+        const docs =  await query.queryDocumentsByClient(clientId);
         return await this.appendDocHistory(query, docs);
     }
 

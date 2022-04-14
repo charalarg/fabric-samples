@@ -1,12 +1,11 @@
 import { logger } from '../utilities/logger';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
-const { INTERNAL_SERVER_ERROR, ACCEPTED, UNAUTHORIZED, CREATED, NOT_FOUND, OK } = StatusCodes;
+const { INTERNAL_SERVER_ERROR, ACCEPTED, UNAUTHORIZED, CREATED, OK } = StatusCodes;
 import { Request, Response } from 'express';
 import { generateAuthToken } from '../middlewares/auth';
 import User from '../services/users.service';
 import * as config from '../config/config';
-import UserModel, { Gender, Role } from '../models/user.model';
-import { AssetNotFoundError } from '../utilities/errors';
+import UserModel, { Gender, IUser, Role } from '../models/user.model';
 
 class UsersController {
   public login = async (req: Request, res: Response) => {

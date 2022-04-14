@@ -24,20 +24,20 @@ class QueryUtils {
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
 
-    async queryDocumentsByClient(client) {
+    async queryDocumentsByClient(clientId) {
         let self = this;
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting client id.');
         }
         let queryString = {};
         queryString.selector = {};
-        queryString.selector.client = client;
+        queryString.selector.clientId = clientId;
 
         let method = self.getQueryResultForQueryString;
         return await method(this.ctx, self, JSON.stringify(queryString));
     }
 
-    async queryDocumentsByIssuer(issuer, client) {
+    async queryDocumentsByIssuer(issuer, clientId) {
         let self = this;
         if (arguments.length < 1) {
             throw new Error('Incorrect number of arguments. Expecting issuer id.');
@@ -45,8 +45,8 @@ class QueryUtils {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.issuer = issuer;
-        if (client){
-            queryString.selector.client = client;
+        if (clientId){
+            queryString.selector.clientId = clientId;
         }
 
         let method = self.getQueryResultForQueryString;

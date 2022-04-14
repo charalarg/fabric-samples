@@ -11,7 +11,7 @@ import { Contract } from 'fabric-network';
 import { AssetNotFoundError } from '../utilities/errors';
 import User from '../services/users.service';
 import Redis from '../services/redis.service';
-import { Role } from '../models/user.model';
+import UserModel, { Role } from '../models/user.model';
 
 export type DocType = {
   Key: string;
@@ -27,6 +27,7 @@ class DocumentsController {
     const mspId = user.mspId as string;
     // const files = req.files as Record<string, unknown>;
     const clientId = req.body.clientId as string;
+    const mongoUser = await UserModel.findByUserId(clientId);
     const title = req.body.title as string;
     const expires = req.body.expires as string;
     // const document = files.document as Record<string, unknown>;
@@ -54,6 +55,9 @@ class DocumentsController {
         certificate,
         sigValueBase64,
         clientId,
+        mongoUser.name as string,
+        mongoUser.surname as string,
+        (mongoUser.dateOfBirth as Date).toISOString().split('T')[0],
         new Date().getTime().toString(),
         title,
         Date.parse(expires).toString()
@@ -98,6 +102,8 @@ class DocumentsController {
       const document = documents.slice(-1)[0].Record;
 
       const docIssuerCert = document.certificate as string;
+      delete document.certificate;
+
       const certObj = new X509();
       certObj.readCertPEM(docIssuerCert);
 
@@ -112,7 +118,9 @@ class DocumentsController {
         subjects_issuer_ca: certObj.getIssuerString(),
         ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
         verified_document: recover.verify(getBackSigValueHex),
+        expired: new Date(document.expires) < new Date(),
         signature: document.signature,
+        document: document,
       });
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s', documentHash);
@@ -143,6 +151,7 @@ class DocumentsController {
       );
       const documents = JSON.parse(data.toString());
       documents.map((doc: DocType) => delete doc.Record.certificate);
+
       return res.status(OK).json(documents);
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s');
