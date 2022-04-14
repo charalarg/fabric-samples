@@ -14,11 +14,10 @@ class TransactionsController {
 
     try {
       const qscc = user.fabricSvc.contracts.qsccContract as Contract;
-      const validationCode = await user.fabricSvc.getTransactionValidationCode(qscc, transactionId);
+      const transaction = await user.fabricSvc.getTransaction(qscc, transactionId);
 
       return res.status(OK).json({
-        transactionId,
-        validationCode,
+        transaction,
       });
     } catch (err) {
       if (err instanceof TransactionNotFoundError) {

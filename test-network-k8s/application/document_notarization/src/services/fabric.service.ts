@@ -14,6 +14,7 @@ import {
   Wallets,
   X509Identity,
 } from 'fabric-network';
+import * as common from 'fabric-common';
 import * as config from '../config/config';
 import { logger } from '../utilities/logger';
 import { handleError } from '../utilities/errors';
@@ -22,6 +23,7 @@ import yaml from 'js-yaml';
 import * as fs from 'fs';
 
 class Fabric {
+  private BlockDecoder = (common as any).BlockDecoder;
   protected walletDir!: Wallet;
   protected ccp: Record<string, unknown>;
   public contracts: Record<string, unknown>;
@@ -132,12 +134,13 @@ class Fabric {
     }
   };
 
-  public getTransactionValidationCode = async (
+  public getTransaction = async (
     qsccContract: Contract,
     transactionId: string
-  ): Promise<string> => {
+  ): Promise<Record<string, unknown>> => {
     const data = await this.evaluateTransaction(
       qsccContract,
+      // 'GetBlockByTxID',
       'GetTransactionByID',
       config.channelName,
       transactionId
@@ -145,9 +148,39 @@ class Fabric {
 
     const processedTransaction = protos.protos.ProcessedTransaction.decode(data);
     const validationCode = protos.protos.TxValidationCode[processedTransaction.validationCode];
+    const transactionEnvelope = this.BlockDecoder.decodeTransaction(data);
+    // const processedBlock = protos.common.Block.decode(data);
+    // const blockEnvelope = this.BlockDecoder.decodeBlock(processedBlock);
+    this.traverse(transactionEnvelope);
 
-    logger.debug({ transactionId }, 'Validation code: %s', validationCode);
-    return validationCode;
+    return { validationCode: validationCode, transactionEnvelope: transactionEnvelope };
+  };
+
+  private traverse = (obj: Record<string, unknown>) => {
+    for (const key in obj) {
+      if (Buffer.isBuffer(obj[key])) {
+        if (['args'].includes(key)) {
+          obj[key] = (obj[key] as Buffer).toString('base64');
+        } else if (
+          ['previous_hash', 'previous_hash', 'proposal_hash', 'data_hash', 'signature', 'nonce'].includes(key)
+        ) {
+          obj[key] = (obj[key] as Buffer).toString('hex');
+        } else {
+          if (['value', 'payload'.includes(key)]) {
+            try {
+              obj[key] = JSON.parse((obj[key] as Buffer).toString('utf-8'));
+            } catch (e) {
+              obj[key] = (obj[key] as Buffer).toString('utf-8');
+            }
+          } else {
+            obj[key] = (obj[key] as Buffer).toString('utf-8');
+          }
+        }
+      }
+      if (obj[key] !== null && typeof obj[key] == 'object') {
+        this.traverse(obj[key] as Record<string, unknown>);
+      }
+    }
   };
 
   public getBlockHeight = async (qscc: Contract): Promise<number | Long.Long> => {

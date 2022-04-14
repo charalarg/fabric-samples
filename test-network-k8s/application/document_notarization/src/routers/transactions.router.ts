@@ -3,7 +3,7 @@
  */
 
 import express from 'express';
-import { authenticateApiKey } from '../middlewares/auth';
+import { authenticateApiKey, publicFacing } from '../middlewares/auth';
 import TransactionsController from '../controllers/transactions.controller';
 
 class TransactionsRouter {
@@ -16,11 +16,7 @@ class TransactionsRouter {
   }
 
   private initializeRoutes() {
-    this.router.post(
-      this.path + ':transactionId',
-      authenticateApiKey,
-      this.transactionsController.getTransaction
-    );
+    this.router.get(this.path + ':transactionId', publicFacing(), this.transactionsController.getTransaction);
   }
 }
 
