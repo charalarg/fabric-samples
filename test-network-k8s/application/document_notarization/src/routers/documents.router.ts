@@ -20,6 +20,9 @@ class DocumentsRouter {
       authenticateApiKey,
       allowRoles([Role.Admin]),
       body().isObject().withMessage('body must contain an document object'),
+      body('clientId', 'must be a string').notEmpty(),
+      body('title', 'must be a string').notEmpty(),
+      body('expires', 'must be yyyy-mm-dd format').notEmpty().isISO8601().toDate(),
       validateStructure,
       this.documentsController.createDocument
     );

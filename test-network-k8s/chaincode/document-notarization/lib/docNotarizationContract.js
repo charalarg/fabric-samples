@@ -33,8 +33,8 @@ class DocNotarizationContract extends Contract {
     }
 
 
-    async issue(ctx, hash, issuer, mspId, certificate, signature, client, timestamp) {
-        let document = Document.createInstance(hash, issuer, mspId, certificate, signature, client, timestamp);
+    async issue(ctx, hash, issuer, mspId, certificate, signature, client, timestamp, title, expires) {
+        let document = Document.createInstance(hash, issuer, mspId, certificate, signature, client, timestamp, title, expires);
         await ctx.documentList.addDocument(document);
         return document;
     }

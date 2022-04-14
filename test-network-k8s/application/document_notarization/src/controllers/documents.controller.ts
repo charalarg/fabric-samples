@@ -27,6 +27,8 @@ class DocumentsController {
     const mspId = user.mspId as string;
     // const files = req.files as Record<string, unknown>;
     const clientId = req.body.clientId as string;
+    const title = req.body.title as string;
+    const expires = req.body.expires as string;
     // const document = files.document as Record<string, unknown>;
     // const documentHash = document ? (document.md5 as string) : crypto.randomBytes(32).toString('hex');
     const documentHash = crypto.randomBytes(16).toString('hex');
@@ -52,7 +54,9 @@ class DocumentsController {
         certificate,
         sigValueBase64,
         clientId,
-        new Date().getTime().toString()
+        new Date().getTime().toString(),
+        title,
+        Date.parse(expires).toString()
       );
 
       return res.status(ACCEPTED).json({
