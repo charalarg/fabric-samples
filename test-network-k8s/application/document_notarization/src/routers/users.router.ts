@@ -2,7 +2,7 @@ import express from 'express';
 import UsersController from '../controllers/users.controller';
 import { body } from 'express-validator';
 import { validateStructure } from '../middlewares/validate';
-import { Role } from '../models/user.model';
+import { Gender, Role } from '../models/user.model';
 import { allowRoles, authenticateApiKey } from '../middlewares/auth';
 
 class UsersRouter {
@@ -42,6 +42,11 @@ class UsersRouter {
       body().isObject({ strict: true }),
       body('userId', 'must be a string').notEmpty(),
       body('password', 'must be a string').notEmpty(),
+      body('name', 'must be a string').notEmpty(),
+      body('surname', 'must be a string').notEmpty(),
+      body('nationalId', 'must be a string').notEmpty(),
+      body('dateOfBirth', 'must be yyyy-mm-dd format').notEmpty().isISO8601().toDate(),
+      body('gender', 'must be Male, Female, or Other').notEmpty().isIn(Object.values(Gender)),
       validateStructure,
       this.usersController.registerUser
     );

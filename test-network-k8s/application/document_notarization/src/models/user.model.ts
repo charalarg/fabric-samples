@@ -8,17 +8,38 @@ export enum Role {
   User = 'User',
 }
 
+export enum Gender {
+  Male = 'Male',
+  Female = 'Female',
+  Other = 'Other',
+}
+
 interface IUser {
   userId: string;
   registrarId: string;
   password: string;
   role: Role;
+  name?: string;
+  surname?: string;
+  nationalId?: string;
+  dateOfBirth?: Date;
+  gender?: Gender;
 }
 
 interface IUserModel extends Model<IUser> {
   findByCredentials(userId: string, password: string): Promise<IUser>;
   findByRegistrar(registrarId: string): Promise<IUser[]>;
-  createUser(userId: string, registrarId: string, password: string, role: Role): Promise<VoidFunction>;
+  createUser(
+    userI: string,
+    registrarId: string,
+    password: string,
+    role: Role,
+    name?: string,
+    surname?: string,
+    nationalId?: string,
+    dateOfBirth?: Date,
+    gender?: Gender
+  ): Promise<VoidFunction>;
 }
 
 const UserSchema = new Schema<IUser, IUserModel>({
@@ -26,6 +47,11 @@ const UserSchema = new Schema<IUser, IUserModel>({
   registrarId: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, enum: Object.values(Role) },
+  name: { type: String, required: false },
+  surname: { type: String, required: false },
+  nationalId: { type: String, required: false },
+  dateOfBirth: { type: Date, required: false },
+  gender: { type: String, required: false, enum: Object.values(Gender) },
 });
 
 UserSchema.statics.findByCredentials = async (userId: string, password: string) => {
@@ -39,9 +65,23 @@ UserSchema.statics.findByRegistrar = async (registrarId: string) => {
   return users ? users : [];
 };
 
-UserSchema.statics.createUser = async (userId: string, registrarId: string, password: string, role: Role) => {
+UserSchema.statics.createUser = async (
+  userId: string,
+  registrarId: string,
+  password: string,
+  role: Role,
+  name?: string,
+  surname?: string,
+  nationalId?: string,
+  dateOfBirth?: Date,
+  gender?: Gender
+) => {
   password = await hash(password, config.encSaltRounds);
-  await UserModel.findOneAndUpdate({ userId }, { userId, registrarId, password, role }, { upsert: true });
+  await UserModel.findOneAndUpdate(
+    { userId },
+    { userId, registrarId, password, name, surname, nationalId, dateOfBirth, gender, role },
+    { upsert: true }
+  );
 };
 
 const UserModel = model<IUser, IUserModel>('User', UserSchema, 'users');

@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import { generateAuthToken } from '../middlewares/auth';
 import User from '../services/users.service';
 import * as config from '../config/config';
-import UserModel, { Role } from '../models/user.model';
+import UserModel, { Gender, Role } from '../models/user.model';
 import { AssetNotFoundError } from '../utilities/errors';
 
 class UsersController {
@@ -49,10 +49,25 @@ class UsersController {
     const userRole = registerRoleMap[registrarRole];
     const userId = req.body.userId;
     const password = req.body.password;
+    const name = req.body.name;
+    const surname = req.body.surname;
+    const nationalId = req.body.nationalId;
+    const dateOfBirth = req.body.dateOfBirth;
+    const gender = req.body.gender as Gender;
 
     try {
       await registrar.fabricSvc.registerAndEnrollUser(userId, userRole);
-      await UserModel.createUser(userId, registrarId, password, userRole);
+      await UserModel.createUser(
+        userId,
+        registrarId,
+        password,
+        userRole,
+        name,
+        surname,
+        nationalId,
+        dateOfBirth,
+        gender
+      );
 
       return res.status(CREATED).json({
         status: getReasonPhrase(CREATED),
