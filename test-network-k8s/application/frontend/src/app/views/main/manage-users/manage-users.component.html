@@ -1,0 +1,87 @@
+<section class="container pt-5 mt-5">
+    <div class="row bg-white p-lg-5 p-3 rounded">
+       
+        <div class="col-12 my-2 d-flex justify-content-between">
+            <div>
+                <h1 class="mb-3 font-30">Enrolled students</h1>
+                <p>Enroll a new student, manage existing ones, or issue a certificate.</p>
+            </div>
+            <div>
+                <a [routerLink]="['/main/enroll-user']" class="btn btn-primary rounded text-white font-18 w-100 px-3">
+                    Enroll new student
+                </a>
+            </div>
+
+        </div>
+        <div class="col-md-12 my-2">
+            <div class="table-responsive">
+                <table class="table custom-table border-primary border">
+                    <thead class="bg-primary text-white">
+                        <td class="py-3 px-3">Student ID</td>
+                        <td class="py-3 px-3 d-flex justify-content-end">Actions</td>
+                    </thead>
+                    <tr>
+                        <td class="py-3 px-3">Ali</td>
+                        <td class="py-3 px-2 d-flex justify-content-end">
+                            <div class="d-flex p-0">
+                                <a [routerLink]="['/main/user-tab', '123']"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a [routerLink]="['/main/issue-certificate']" [queryParams]="{userID: 'ali'}"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    Issue certificate</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 px-3">Ali</td>
+                        <td class="py-3 px-2 d-flex justify-content-end">
+                            <div class="d-flex p-0">
+                                <a [routerLink]="['/main/user-tab', '123']"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a [routerLink]="['/main/issue-certificate']" [queryParams]="{userID: 'ali'}"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    Issue certificate</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 px-3">Ali</td>
+                        <td class="py-3 px-2 d-flex justify-content-end">
+                            <div class="d-flex p-0">
+                                <a [routerLink]="['/main/user-tab', '123']"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a [routerLink]="['/main/issue-certificate']" [queryParams]="{userID: 'ali'}"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    Issue certificate</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-3 px-3">Ali</td>
+                        <td class="py-3 px-2 d-flex justify-content-end">
+                            <div class="d-flex p-0">
+                                <a [routerLink]="['/main/user-tab', '123']"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a [routerLink]="['/main/issue-certificate']" [queryParams]="{userID: 'ali'}"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    Issue certificate</a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,47 @@
+<div class="container-fluid custom-bg full-height">
+    <nav
+        class="position-fixed w-100 t-0 l-0 navbar navbar-expand-lg navbar-light bg-white px-4 py-3 z-index-1000 shadow-sm">
+        <div class="col-lg-8 col-8">
+            <div class="d-flex align-items-center">
+                <button [ngClass]="'btn-light'" (click)="toggleMenuClick()" class="btn round-button text-white"
+                    type="button">
+                    <i class="text-dark bi bi-list"></i>
+                </button>
+                <!-- <idf-logo class="mx-3" [logo]="'./assets/images/main-logo.png'"></idf-logo> -->
+            </div>
+        </div>
+        <div class="col-lg-4 col-4 d-flex justify-content-end">
+            <div class="d-flex align-items-center">
+                <button [ngClass]="'btn-primary'" class="btn round-button text-white" data-display="static"
+                    type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-person"></i>
+                </button>
+                <ul class="auth-dropdown dropdown-menu dropdown-menu-end dropdown-menu-white mt-2 py-0">
+
+                    <li><a class="dropdown-item py-2" [routerLink]="'.'" (click)="logout();">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <ejs-sidebar #sidebar class="sidebar" type="Push" [width]="width" [mediaQuery]="mediaQuery" (open)="open($event)"
+        (close)="close($event)">
+        <div>
+            <ul class="list-group custom-menu">
+                <ng-container *ngFor="let menuItem of menuData">
+                    <li (click)="toggleMenuClick()">
+                        <a class="no-underline list-group-item py-3" [routerLink]="menuItem.url">
+                            <div class="mb-0 d-flex flex-column justify-content-center align-items-center">
+                                <i class="font-20 {{menuItem.icon}}"></i>
+                                <p class="mb-0 mt-1">{{menuItem.label}}</p>
+                            </div>
+                        </a>
+                    </li>
+                </ng-container>
+            </ul>
+        </div>
+    </ejs-sidebar>
+    <!-- <idf-menu [isOpen]="isOpen" [menuItems]="menuData"></idf-menu> -->
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</div>

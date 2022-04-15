@@ -1,0 +1,82 @@
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+@font-face {
+  font-family: 'Averta';
+  src: url('assets/fonts/Averta-Standard/Averta-Bold/font.woff2') format('woff2'), url('assets/fonts/Averta-Standard/Averta-Bold/font.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Averta';
+  src: url('assets/fonts/Averta-Standard/Averta-Regular/font.woff2') format('woff2'), url('assets/fonts/Averta-Standard/Averta-Regular/font.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Averta';
+  src: url('assets/fonts/Averta-Standard/Averta-Light/font.woff2') format('woff2'), url('assets/fonts/Averta-Standard/Averta-Light/font.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Averta';
+  src: url('assets/fonts/Averta-Standard/Averta-Regular/font.woff2') format('woff2'), url('assets/fonts/Averta-Standard/Averta-Regular/font.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Averta';
+  src: url('assets/fonts/Averta-Standard/Averta-Semibold/font.woff2') format('woff2'), url('assets/fonts/Averta-Standard/Averta-Semibold/font.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+
+html, body {
+    margin:0;
+    height:100%;
+  }
+.full-bg{
+    
+    background: url('assets/img/bg.jpg');
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+    // height:100%;
+}
+.box{
+  position:relative;
+  min-height:230px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  a{
+    position:absolute;
+    top:0;
+    left:0;
+    height:100%;
+    width: 100%;
+  } 
+  i{
+    font-size:30px;
+  }
+  h2{
+    font-size:20px;
+    font-weight: 600;
+    margin-top:10px;
+    margin-bottom:0;
+  }
+}
+.custom-table{
+  > :not(:first-child) {
+    border-top: 1px solid currentColor;
+  }
+  font-size:20px;
+  div{
+    i{
+      padding: 0 5px;
+      
+    }
+  }
+  
+}

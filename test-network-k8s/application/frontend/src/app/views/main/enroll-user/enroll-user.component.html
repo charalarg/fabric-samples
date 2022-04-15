@@ -1,0 +1,42 @@
+<section class="container pt-5 mt-5">
+    <div class="row bg-white p-lg-5 p-3 rounded">
+        <div class="col-12 my-2">
+            <div class="d-flex">
+                <a class="px-1 " [routerLink]="['/main/dashboard']">My students</a> > <p class="px-1 text-primary font-weight-bold">Enroll student</p>
+            </div>
+        </div>
+        <div class="col-12 my-2">
+            <h1 class="mb-3 font-30">Enroll new student</h1>
+            <p>Enroll a new student in order to manage or issue a certificate.</p>
+        </div>
+        <div class="col-md-12 my-2">
+            <form #form="ngForm" (ngSubmit)="submitForm()" [formGroup]="fieldForm"
+            [ngClass]="{'form-submitted': form.submitted}" class="form bg-white" novalidate>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control bg-light-grey " id="userId" formControlName="userId"
+                    [ngClass]="{'is-invalid' : fieldForm.get('userId')?.errors && form.submitted}"
+                    placeholder="name@example.com">
+                <label for="userId">Student ID</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control bg-light-grey" id="password" formControlName="password"
+                    [ngClass]="{'is-invalid' : fieldForm.get('password')?.errors && form.submitted}"
+                    placeholder="Κωδικός πρόσβασης">
+                <label for="password">Password</label>
+            </div>
+            
+            <div class="input-group">
+                <input class="form-control" placeholder="yyyy-mm-dd"
+                       name="dp" [(ngModel)]="datepicker" ngbDatepicker #d="ngbDatepicker">
+                <button class="btn btn-outline-primary" (click)="d.toggle()" type="button"><i class="bi bi-calendar3"></i></button>
+              </div>
+
+            <div class="mb-0">
+                <button [type]="'submit'" class="h-45 btn btn-primary rounded text-white font-18 w-100">
+                    Enroll
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+</section>
