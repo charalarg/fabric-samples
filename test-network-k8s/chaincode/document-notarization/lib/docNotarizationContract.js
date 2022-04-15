@@ -39,6 +39,18 @@ class DocNotarizationContract extends Contract {
         return document;
     }
 
+
+    async setExpired(ctx,  hash) {
+        let query = new QueryUtils(ctx, 'org.avangard.documents');
+        const docs =  await query.queryDocumentsByHash(hash);
+        const doc = docs[0];
+        const key = Document.makeKey([hash, doc.Record.timestamp]);
+        let document = await ctx.documentList.getDocument(key);
+        document.revoke();
+        await ctx.documentList.updateDocument(document);
+    }
+
+
     async queryDocumentByHash(ctx, hash) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');
         const docs =  await query.queryDocumentsByHash(hash);

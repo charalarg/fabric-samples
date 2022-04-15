@@ -118,12 +118,38 @@ class DocumentsController {
         subjects_issuer_ca: certObj.getIssuerString(),
         ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
         verified_document: recover.verify(getBackSigValueHex),
-        expired: new Date(document.expires) < new Date(),
+        expired: document.expires < Date.now().toString(),
         signature: document.signature,
         document: document,
       });
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s', documentHash);
+      return res.status(INTERNAL_SERVER_ERROR).json({
+        status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  };
+
+  public revokeDocument = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    const documentHash = req.body.document as string;
+    const redis = Redis.getInstance();
+    const mspId = user.mspId as string;
+
+    try {
+      const submitQueue = redis.jobQueue as Queue;
+      const jobId = await redis.addSubmitTransactionJob(submitQueue, mspId, 'setExpired', documentHash);
+
+      return res.status(ACCEPTED).json({
+        status: getReasonPhrase(ACCEPTED),
+        jobId: jobId,
+        documentHash: documentHash,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      logger.error({ err }, 'Error processing revoke document request for document ID %s', documentHash);
+
       return res.status(INTERNAL_SERVER_ERROR).json({
         status: getReasonPhrase(INTERNAL_SERVER_ERROR),
         timestamp: new Date().toISOString(),

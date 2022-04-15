@@ -17,6 +17,10 @@ class Document extends State {
         return new Document({hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires});
     }
 
+    revoke() {
+        this.expires = new Date().getTime().toString();
+    }
+
     static getClass() {
         return 'org.avangard.document';
     }
