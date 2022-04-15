@@ -1,4 +1,4 @@
-import express from 'express';
+import express from 'express';1
 import UsersController from '../controllers/users.controller';
 import { body } from 'express-validator';
 import { validateStructure } from '../middlewares/validate';
@@ -45,7 +45,7 @@ class UsersRouter {
       body('name', 'must be a string').notEmpty(),
       body('surname', 'must be a string').notEmpty(),
       body('nationalId', 'must be a string').notEmpty(),
-      body('dateOfBirth', 'must be yyyy-mm-dd format').notEmpty().isISO8601().toDate(),
+      body('dateOfBirth', 'must be yyyy-mm-dd format').notEmpty().isISO8601(),
       body('gender', 'must be Male, Female, or Other').notEmpty().isIn(Object.values(Gender)),
       validateStructure,
       this.usersController.registerUser

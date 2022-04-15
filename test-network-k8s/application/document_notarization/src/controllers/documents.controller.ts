@@ -57,7 +57,7 @@ class DocumentsController {
         clientId,
         mongoUser.name as string,
         mongoUser.surname as string,
-        (mongoUser.dateOfBirth as Date).toISOString().split('T')[0],
+        mongoUser.dateOfBirth as string,
         new Date().getTime().toString(),
         title,
         Date.parse(expires).toString()

@@ -22,7 +22,7 @@ export interface IUser {
   name?: string;
   surname?: string;
   nationalId?: string;
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
   gender?: Gender;
 }
 
@@ -38,7 +38,7 @@ interface IUserModel extends Model<IUser> {
     name?: string,
     surname?: string,
     nationalId?: string,
-    dateOfBirth?: Date,
+    dateOfBirth?: string,
     gender?: Gender
   ): Promise<VoidFunction>;
 }
@@ -51,7 +51,7 @@ const UserSchema = new Schema<IUser, IUserModel>({
   name: { type: String, required: false },
   surname: { type: String, required: false },
   nationalId: { type: String, required: false },
-  dateOfBirth: { type: Date, required: false },
+  dateOfBirth: { type: String, required: false },
   gender: { type: String, required: false, enum: Object.values(Gender) },
 });
 
@@ -79,7 +79,7 @@ UserSchema.statics.createUser = async (
   name?: string,
   surname?: string,
   nationalId?: string,
-  dateOfBirth?: Date,
+  dateOfBirth?: string,
   gender?: Gender
 ) => {
   password = await hash(password, config.encSaltRounds);
