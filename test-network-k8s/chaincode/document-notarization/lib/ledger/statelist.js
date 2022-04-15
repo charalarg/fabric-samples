@@ -43,7 +43,7 @@ class StateList {
     async getState(key) {
         let ledgerKey = this.ctx.stub.createCompositeKey(this.name, State.splitKey(key));
         let data = await this.ctx.stub.getState(ledgerKey);
-        if (data && data.toString()) {
+        if (data && data.toString('utf8')) {
             return State.deserialize(data, this.supportedClasses);
         } else {
             return null;

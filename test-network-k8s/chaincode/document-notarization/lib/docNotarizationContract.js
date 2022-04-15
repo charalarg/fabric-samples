@@ -33,11 +33,23 @@ class DocNotarizationContract extends Contract {
     }
 
 
-    async issue(ctx, hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires) {
+    async issueCertificate(ctx, hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires) {
         let document = Document.createInstance(hash, issuer, mspId, certificate, signature, clientId, clientName, clientSurname, dateOdBirth, timestamp, title, expires);
         await ctx.documentList.addDocument(document);
         return document;
     }
+
+
+    async revokeCertificate(ctx,  hash) {
+        let query = new QueryUtils(ctx, 'org.avangard.documents');
+        const docs =  await query.queryDocumentsByHash(hash);
+        const doc = docs[0];
+        const key = Document.makeKey([hash, doc.Record.timestamp]);
+        let document = await ctx.documentList.getDocument(key);
+        document.revoke();
+        await ctx.documentList.updateDocument(document);
+    }
+
 
     async queryDocumentByHash(ctx, hash) {
         let query = new QueryUtils(ctx, 'org.avangard.documents');

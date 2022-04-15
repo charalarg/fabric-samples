@@ -48,7 +48,7 @@ class DocumentsController {
       const jobId = await redis.addSubmitTransactionJob(
         submitQueue,
         mspId,
-        'issue',
+        'issueCertificate',
         documentHash,
         userId,
         mspId,
@@ -57,7 +57,7 @@ class DocumentsController {
         clientId,
         mongoUser.name as string,
         mongoUser.surname as string,
-        (mongoUser.dateOfBirth as Date).toISOString().split('T')[0],
+        mongoUser.dateOfBirth as string,
         new Date().getTime().toString(),
         title,
         Date.parse(expires).toString()
@@ -99,7 +99,9 @@ class DocumentsController {
           timestamp: new Date().toISOString(),
         });
       }
-      const document = documents.slice(-1)[0].Record;
+      const documentBody = documents.slice(-1)[0];
+      const document = documentBody.Record;
+      const transaction_ids = documentBody.transaction_ids;
 
       const docIssuerCert = document.certificate as string;
       delete document.certificate;
@@ -118,12 +120,39 @@ class DocumentsController {
         subjects_issuer_ca: certObj.getIssuerString(),
         ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
         verified_document: recover.verify(getBackSigValueHex),
-        expired: new Date(document.expires) < new Date(),
+        expired: document.expires < Date.now().toString(),
         signature: document.signature,
         document: document,
+        transaction_ids: transaction_ids,
       });
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s', documentHash);
+      return res.status(INTERNAL_SERVER_ERROR).json({
+        status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  };
+
+  public revokeDocument = async (req: Request, res: Response) => {
+    const user = req.user as User;
+    const documentHash = req.body.document as string;
+    const redis = Redis.getInstance();
+    const mspId = user.mspId as string;
+
+    try {
+      const submitQueue = redis.jobQueue as Queue;
+      const jobId = await redis.addSubmitTransactionJob(submitQueue, mspId, 'revokeCertificate', documentHash);
+
+      return res.status(ACCEPTED).json({
+        status: getReasonPhrase(ACCEPTED),
+        jobId: jobId,
+        documentHash: documentHash,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      logger.error({ err }, 'Error processing revoke document request for document ID %s', documentHash);
+
       return res.status(INTERNAL_SERVER_ERROR).json({
         status: getReasonPhrase(INTERNAL_SERVER_ERROR),
         timestamp: new Date().toISOString(),

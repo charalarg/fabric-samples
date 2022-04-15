@@ -35,6 +35,15 @@ class DocumentsRouter {
       this.documentsController.validateDocument
     );
 
+    this.router.post(
+      this.path + 'revoke',
+      authenticateApiKey,
+      allowRoles([Role.Admin]),
+      body().isObject().withMessage('body must contain an document object'),
+      validateStructure,
+      this.documentsController.revokeDocument
+    );
+
     this.router.get(
       this.path + ':client?',
       authenticateApiKey,
