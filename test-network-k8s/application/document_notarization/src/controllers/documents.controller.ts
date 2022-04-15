@@ -48,7 +48,7 @@ class DocumentsController {
       const jobId = await redis.addSubmitTransactionJob(
         submitQueue,
         mspId,
-        'issue',
+        'issueCertificate',
         documentHash,
         userId,
         mspId,
@@ -99,7 +99,9 @@ class DocumentsController {
           timestamp: new Date().toISOString(),
         });
       }
-      const document = documents.slice(-1)[0].Record;
+      const documentBody = documents.slice(-1)[0];
+      const document = documentBody.Record;
+      const transaction_ids = documentBody.transaction_ids;
 
       const docIssuerCert = document.certificate as string;
       delete document.certificate;
@@ -121,6 +123,7 @@ class DocumentsController {
         expired: document.expires < Date.now().toString(),
         signature: document.signature,
         document: document,
+        transaction_ids: transaction_ids,
       });
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s', documentHash);
@@ -139,7 +142,7 @@ class DocumentsController {
 
     try {
       const submitQueue = redis.jobQueue as Queue;
-      const jobId = await redis.addSubmitTransactionJob(submitQueue, mspId, 'setExpired', documentHash);
+      const jobId = await redis.addSubmitTransactionJob(submitQueue, mspId, 'revokeCertificate', documentHash);
 
       return res.status(ACCEPTED).json({
         status: getReasonPhrase(ACCEPTED),
