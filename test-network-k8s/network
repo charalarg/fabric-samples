@@ -41,6 +41,8 @@ CHAINCODE_LABEL=${TEST_NETWORK_CHAINCODE_LABEL:-basic_1.0}
 APP_VERSION=${TEST_NETWORK_APP_VERSION:-9}
 APP_NAME=${TEST_NETWORK_APP_NAME:-document_notarization}
 APP_IMAGE=${TEST_NETWORK_APP_IMAGE:-document_notarization-app:v${APP_VERSION}}
+FRONTEND_NAME=${TEST_NETWORK_FRONTEND_NAME:-frontend}
+FRONTEND_IMAGE=${TEST_NETWORK_FRONTEND_IMAGE:-document_notarization-frontend:v${APP_VERSION}}
 REDIS_IMAGE=${TEST_NETWORK_REDIS:-redis:6.2.5}
 MONGO_IMAGE=${TEST_NETWORK_MONGO:-mongo}
 COUCHDB_IMAGE=${TEST_NETWORK_COUCHDB_IMAGE:-couchdb:3.2.1}
@@ -145,11 +147,12 @@ elif [ "${MODE}" == "build-images" ]; then
   IMAGE=$2
   shift 2
 
-  log "Building and pushing local \"${IMAGE}\"images"
+  log "Building and pushing local \"${IMAGE}\" images"
   CHAINCODE_VERSION=$@
   APP_VERSION=$@
   CHAINCODE_IMAGE=document-notarization-cc:v${CHAINCODE_VERSION}
   APP_IMAGE=document-notarization-app:v${APP_VERSION}
+  FRONTEND_IMAGE=document-notarization-frontend:v${APP_VERSION}
   build_and_push_images_locally ${ENV} ${IMAGE}
   log "🏁 - Images was pushed to local registry."
 
@@ -224,6 +227,7 @@ elif [ "${MODE}" == "application" ]; then
     log "Deploying application \"${APP_NAME}\":"
     APP_VERSION=$@
     APP_IMAGE=document-notarization-app:v${APP_VERSION}
+    FRONTEND_IMAGE=document-notarization-frontend:v${APP_VERSION}
     application_connection
     log "🏁 - Application is ready."
   else

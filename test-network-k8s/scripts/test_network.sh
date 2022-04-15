@@ -189,8 +189,12 @@ function build_and_push_images_locally() {
       docker build -f application/${APP_NAME}/${dockerFile} -t ${APP_IMAGE} application/${APP_NAME} --no-cache
       docker tag ${APP_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
       docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${APP_IMAGE}
+  elif [ "${image}" == "fr" ]; then
+      docker rmi $(docker images | grep ${FRONTEND_NAME}) --force || true
+      docker build -f application/${FRONTEND_NAME}/${dockerFile} -t ${FRONTEND_IMAGE} application/${FRONTEND_NAME} --no-cache
+      docker tag ${FRONTEND_IMAGE} ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${FRONTEND_IMAGE}
+      docker push ${LOCAL_REGISTRY_HOST}:${LOCAL_REGISTRY_PORT}/${FRONTEND_IMAGE}
   fi
-
 }
 
 

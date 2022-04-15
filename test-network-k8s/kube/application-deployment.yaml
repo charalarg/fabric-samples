@@ -43,6 +43,18 @@ spec:
               mountPath: /fabric/cacerts
             - name: app-codebase
               mountPath: /app
+        - name: frontend
+          image: {{FRONTEND_IMAGE}}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4200
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+          volumeMounts:
+            - name: frontend-codebase
+              mountPath: /app
         - name: redis
           image: {{REDIS_IMAGE}}
           ports:
@@ -71,6 +83,9 @@ spec:
         - name: app-codebase
           hostPath:
             path: /test-network-k8s/application/document_notarization
+        - name: frontend-codebase
+          hostPath:
+            path: /test-network-k8s/application/frontend
         - name: fabric-ccp
           configMap:
             name: app-fabric-ccp-v1-map
@@ -96,6 +111,9 @@ spec:
       protocol: TCP
     - name: mongo
       port: 27017
+      protocol: TCP
+    - name: frontend
+      port: 4200
       protocol: TCP
     - name: debugger
       port: 9229
@@ -125,11 +143,20 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: application-deployment
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2$3
 spec:
   rules:
     - http:
         paths:
-          - path: "/"
+          - path: "/()(.*)"
+            pathType: Prefix
+            backend:
+              service:
+                name: application-deployment
+                port:
+                  number: 4200
+          - path: "/api(/|$)(.*)"
             pathType: Prefix
             backend:
               service:

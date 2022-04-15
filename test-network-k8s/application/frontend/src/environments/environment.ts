@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  API_BASE_URL: "http://localhost",
+  // API_BASE_URL: "http://localhost",
+  API_BASE_URL: "https://19c5-46-103-133-91.eu.ngrok.io",
   API_LOGIN: "/api/users/login",
   API_CREATE_DOCUMENT: "/api/documents",
   API_GET_JOB: "/api/jobs",
