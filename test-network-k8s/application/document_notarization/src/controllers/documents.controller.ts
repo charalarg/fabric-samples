@@ -181,6 +181,10 @@ class DocumentsController {
       const documents = JSON.parse(data.toString());
       documents.map((doc: DocType) => delete doc.Record.certificate);
 
+      documents.map(
+        (doc: DocType) => (doc.Record.expired = (doc.Record.expires as string) < Date.now().toString())
+      );
+
       return res.status(OK).json(documents);
     } catch (err) {
       logger.error({ err }, 'Error processing read document request for document ID %s');
