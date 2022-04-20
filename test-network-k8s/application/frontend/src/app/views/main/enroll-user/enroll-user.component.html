@@ -1,8 +1,9 @@
-<section class="container pt-5 mt-5">
+<section class="container pt-5 mt-5 pb-5">
     <div class="row bg-white p-lg-5 p-3 rounded">
         <div class="col-12 my-2">
             <div class="d-flex">
-                <a class="px-1 " [routerLink]="['/main/dashboard']">My students</a> > <p class="px-1 text-primary font-weight-bold">Enroll student</p>
+                <a class="px-1 " [routerLink]="['/main/dashboard']">My students</a> > <p
+                    class="px-1 text-primary font-weight-bold">Enroll student</p>
             </div>
         </div>
         <div class="col-12 my-2">
@@ -10,33 +11,61 @@
             <p>Enroll a new student in order to manage or issue a certificate.</p>
         </div>
         <div class="col-md-12 my-2">
-            <form #form="ngForm" (ngSubmit)="submitForm()" [formGroup]="fieldForm"
-            [ngClass]="{'form-submitted': form.submitted}" class="form bg-white" novalidate>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control bg-light-grey " id="userId" formControlName="userId"
-                    [ngClass]="{'is-invalid' : fieldForm.get('userId')?.errors && form.submitted}"
-                    placeholder="name@example.com">
-                <label for="userId">Student ID</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control bg-light-grey" id="password" formControlName="password"
-                    [ngClass]="{'is-invalid' : fieldForm.get('password')?.errors && form.submitted}"
-                    placeholder="Κωδικός πρόσβασης">
-                <label for="password">Password</label>
-            </div>
-            
-            <div class="input-group">
-                <input class="form-control" placeholder="yyyy-mm-dd"
-                       name="dp" [(ngModel)]="datepicker" ngbDatepicker #d="ngbDatepicker">
-                <button class="btn btn-outline-primary" (click)="d.toggle()" type="button"><i class="bi bi-calendar3"></i></button>
-              </div>
-
-            <div class="mb-0">
-                <button [type]="'submit'" class="h-45 btn btn-primary rounded text-white font-18 w-100">
-                    Enroll
-                </button>
-            </div>
-        </form>
+            <form #form="ngForm" (ngSubmit)="submitForm(form)" [formGroup]="fieldForm"
+                [ngClass]="{'form-submitted': form.submitted}" class="form bg-white" novalidate>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey " id="userId" formControlName="userId"
+                        [ngClass]="{'is-invalid' : fieldForm.get('userId')?.errors && form.submitted}"
+                        placeholder="Student ID">
+                    <label for="userId">Student ID</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey" id="password" formControlName="password"
+                        [ngClass]="{'is-invalid' : fieldForm.get('password')?.errors && form.submitted}"
+                        placeholder="Password">
+                    <label for="password">Password</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey" id="name" formControlName="name"
+                        [ngClass]="{'is-invalid' : fieldForm.get('name')?.errors && form.submitted}" placeholder="Name">
+                    <label for="name">Name</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey" id="surname" formControlName="surname"
+                        [ngClass]="{'is-invalid' : fieldForm.get('surname')?.errors && form.submitted}"
+                        placeholder="Surname">
+                    <label for="surname">Surname</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select class="form-select bg-light-grey" id="gender" formControlName="gender"
+                        [ngClass]="{'is-invalid' : fieldForm.get('gender')?.errors && form.submitted}">
+                        <option selected disabled>No gender selected</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <label for="gender">Gender</label>
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control bg-light-grey h-58"
+                        [ngClass]="{'is-invalid' : fieldForm.get('dateOfBirth')?.errors && form.submitted}"
+                        placeholder="Date of birth" formControlName="dateOfBirth" ngbDatepicker #d="ngbDatepicker">
+                    <button class="btn btn-primary" (click)="d.toggle()" type="button"><i
+                            class="bi bi-calendar3"></i></button>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey" id="nationalId" formControlName="nationalId"
+                        [ngClass]="{'is-invalid' : fieldForm.get('nationalId')?.errors && form.submitted}"
+                        placeholder="National Id">
+                    <label for="nationalId">National ID</label>
+                </div>
+                <div class="mb-0">
+                    <button [type]="'submit'" [disabled]="isDisabled"
+                        class="h-45 btn btn-primary rounded text-white font-18 w-100">
+                        Enroll
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </section>

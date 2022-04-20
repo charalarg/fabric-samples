@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { LocalStorageService } from 'ngx-webstorage';
+import { ApiService } from 'src/app/services/api.service';
+import { ToastsService } from 'src/app/services/toast.servive';
 
 @Component({
   selector: 'app-enroll-user',
@@ -13,7 +15,14 @@ export class EnrollUserComponent implements OnInit {
   datepicker!: NgbDateStruct;
   fieldForm!: FormGroup;
   isLoading: boolean = false;
-  constructor(private formBuilder: FormBuilder, private localStorage: LocalStorageService, private router: Router) { }
+  isDisabled: boolean = false;
+  constructor(
+    private formBuilder: FormBuilder,
+    private localStorage: LocalStorageService,
+    private router: Router,
+    private apiService: ApiService,
+    private toastService: ToastsService
+  ) { }
 
   ngOnInit() {
     this.initForm();
@@ -39,18 +48,31 @@ export class EnrollUserComponent implements OnInit {
     this.fieldForm.controls['nationalId'].updateValueAndValidity();
     this.fieldForm.controls['dateOfBirth'].updateValueAndValidity();
     this.fieldForm.controls['gender'].updateValueAndValidity();
-    
+
   }
 
-  submitForm() {
+  submitForm(form: FormGroupDirective) {
     if (this.fieldForm.valid) {
-      // this.authService.login(this.fieldForm.value).subscribe(async res => {
-      //   console.log(res);
-      //   if (res?.status) {
-      //     await this.localStorage.store(environment.ACCESS_TOKEN, res?.token);
-      //     this.router.navigate(['dashboard']);
-      //   }
-      // });
+      if (this.fieldForm.value.dateOfBirth.day < 10) {
+        this.fieldForm.value.dateOfBirth.day = '0' + this.fieldForm.value.dateOfBirth.day;
+      }
+      if (this.fieldForm.value.dateOfBirth.month < 10) {
+        this.fieldForm.value.dateOfBirth.month = '0' + this.fieldForm.value.dateOfBirth.month;
+      }
+      let formattedDate = `${this.fieldForm.value.dateOfBirth.year}-${this.fieldForm.value.dateOfBirth.month}-${this.fieldForm.value.dateOfBirth.day}`
+      this.fieldForm.value.dateOfBirth = formattedDate;
+      console.log(formattedDate);
+      this.apiService.enrollStudent(this.fieldForm.value).subscribe(res => {
+        this.isDisabled = false;
+        this.toastService.successToast('Student enrolled!');
+        this.fieldForm.reset();
+        form.resetForm();
+      }, error => {
+        // console.log(error);
+        this.isDisabled = false;
+        this.toastService.errorToast('Something went wrong!');
+      });
+
     }
   }
 

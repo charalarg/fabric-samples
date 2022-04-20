@@ -41,9 +41,13 @@ export class MainComponent implements OnInit {
     console.log("Sidebar Closed");
   }
   toggleMenuClick() {
-    this.sidebar.toggle();
+    if(window.matchMedia('(min-width: 1150px)').matches){
+
+    } else{
+      this.sidebar.toggle();
+    }
   }
- 
+
   closeClick() {
     this.sidebar.hide();
   }
@@ -64,7 +68,7 @@ export class MainComponent implements OnInit {
             icon: 'bi bi-person-plus',
             url: '/main/enroll-user',
           }
-        
+
         )
       } else if (role === 'User') {
         this.menuData.push(
@@ -74,7 +78,7 @@ export class MainComponent implements OnInit {
             icon: 'bi bi-file-earmark-medical',
             url: '/main/dashboard',
           },
-         
+
         )
       }
     });

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
 import { QRCodeModule } from 'angularx-qrcode';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -12,7 +13,7 @@ import { QRCodeModule } from 'angularx-qrcode';
   ],
   imports: [
     CommonModule,
-   
+    NgbModalModule,
     QRCodeModule
   ],
   exports:[

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { UserTabRoutingModule } from './user-tab-routing.module';
 import { UserTabComponent } from './user-tab.component';
-import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordionModule, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
 
 
@@ -15,6 +15,7 @@ import { QRCodeModule } from 'angularx-qrcode';
     CommonModule,
     UserTabRoutingModule,
     NgbModalModule,
+    NgbAccordionModule,
     QRCodeModule
   ]
 })

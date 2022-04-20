@@ -16,7 +16,7 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
     EnrollUserRoutingModule,
     ReactiveFormsModule,
     FormsModule,
-    NgbDatepickerModule
+    NgbDatepickerModule,
   ]
 })
 export class EnrollUserModule { }

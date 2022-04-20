@@ -92,12 +92,14 @@ p {
   background-color: #fff;
 }
 .full-height {
-  min-height: 100vh;
+  min-height: 95vh;
 }
 .h-45 {
   height: 45px;
 }
-
+.h-58{
+  height: 58px;
+}
 // General
 .z-index-1000 {
   z-index: 1000;
@@ -185,6 +187,11 @@ p {
   }
   .btn-close{
     color:#fff;
+  }
+}
+.custom-logo{
+  img{
+    height:40px;
   }
 }
 

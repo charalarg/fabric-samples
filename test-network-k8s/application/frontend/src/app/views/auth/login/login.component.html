@@ -1,29 +1,17 @@
 <section class="container">
     <div class="row">
         <div class="col-12">
+            <div class="row">
+                <div class="col-12 px-0">
+                    <div class="bg-white rounded px-0 py-3 my-3 text-center px-3">
+                        <img class="img-fluid" src="/assets/img/logo-ideasforward-full-hor-lightbg.svg">
+                    </div>
+                </div>
+            </div>
+           
             <idf-auth [isDisabled]="isDisabled" [description]="description" [bgColor]="bgColor" [viewLabel]="viewLabel"
             [submitButtonLabel]="submitButtonLabel" [fields]="loginFields" (onSubmit)="getLoginValues($event)">
             </idf-auth>
-            <!-- <form #form="ngForm" (ngSubmit)="submitForm()" [formGroup]="fieldForm"
-                [ngClass]="{'form-submitted': form.submitted}" class="form bg-white p-5 mt-5" novalidate>
-                <div class="form-floating mb-3">
-                    <input type="userId" class="form-control bg-light-grey " id="userId" formControlName="userId"
-                        [ngClass]="{'is-invalid' : fieldForm.get('userId')?.errors && form.submitted}"
-                        placeholder="name@example.com">
-                    <label for="userId">User ID</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control bg-light-grey" id="password" formControlName="password"
-                        [ngClass]="{'is-invalid' : fieldForm.get('password')?.errors && form.submitted}"
-                        placeholder="Κωδικός πρόσβασης">
-                    <label for="password">Password</label>
-                </div>
-                <div class="mb-0">
-                    <button [type]="'submit'" class="h-45 btn btn-primary rounded text-white font-18 w-100">
-                        Login
-                    </button>
-                </div>
-            </form> -->
         </div>
     </div>
 </section>

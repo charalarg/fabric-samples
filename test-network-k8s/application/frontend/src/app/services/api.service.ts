@@ -20,6 +20,33 @@ export class ApiService {
 
 
   issueCertificate(payload: any) {
-    return this.httpClient.post<any>(`${this.url}/api/documents'`, payload);
+    return this.httpClient.post<any>(`${this.url}${environment.API_GET_DOCUMENTS}`, payload);
   }
+  validateCertificate(certID:string){
+    let payload: any = {
+      document: certID
+    }
+    return this.httpClient.post<any>(`${this.url}${environment.API_VALIDATE_DOCUMENT}`, payload);
+  }
+
+  enrollStudent(payload: any) {
+    return this.httpClient.post<any>(`${this.url}${environment.API_REGISTER_CLIENT}`, payload);
+  }
+  getCertificates(){
+    return this.httpClient.get<any>(`${this.url}${environment.API_GET_DOCUMENTS}`);
+  }
+  getUsers(){
+    return this.httpClient.get<any>(`${this.url}${environment.API_GET_USERS}`);
+  }
+  getCertificatesByUser(userID:string){
+    return this.httpClient.get<any>(`${this.url}${environment.API_GET_DOCUMENTS}/${userID}`);
+  }
+  revokeCert(certID:string){
+    return this.httpClient.post<any>(`${this.url}${environment.API_REVOKE_CERT}`, certID);
+  }
+  getTransaction(transactionID:string){
+    return this.httpClient.get<any>(`${this.url}${environment.API_GET_TRANSACTIONS}/${transactionID}`);
+  }
+  
+  
 }
