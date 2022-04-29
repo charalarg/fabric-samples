@@ -37,7 +37,7 @@
                     <label for="surname">Surname</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <select class="form-select bg-light-grey" id="gender" formControlName="gender"
+                    <select class="no-close form-select bg-light-grey" id="gender" formControlName="gender"
                         [ngClass]="{'is-invalid' : fieldForm.get('gender')?.errors && form.submitted}">
                         <option selected disabled>No gender selected</option>
                         <option value="Male">Male</option>

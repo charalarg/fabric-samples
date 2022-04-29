@@ -13,6 +13,7 @@ export class ProfileComponent implements OnInit {
   selectedCertificate :any;
   closeResult = '';
   certificates!: any[];
+  loading: boolean = false;
   constructor(private modalService: NgbModal, private apiService: ApiService) { }
 
   ngOnInit(): void {
@@ -52,8 +53,10 @@ export class ProfileComponent implements OnInit {
   }
 
   public getCertificates() {
+    this.loading = true;
     this.apiService.getCertificates().subscribe(res => {
       this.certificates = res;
+      this.loading = false;
     })
   }
 }

@@ -67,6 +67,7 @@ export class EnrollUserComponent implements OnInit {
         this.toastService.successToast('Student enrolled!');
         this.fieldForm.reset();
         form.resetForm();
+        this.router.navigate(['main/manage-users']);
       }, error => {
         // console.log(error);
         this.isDisabled = false;

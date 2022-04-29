@@ -23,6 +23,7 @@ export class UserTabComponent implements OnInit {
   certificates!: any[];
   selectedCertificate: any;
   selectedTransactions: any[] = [];
+  loading: boolean = false;
   constructor(
     private modalService: NgbModal,
     private route: ActivatedRoute,
@@ -99,8 +100,10 @@ export class UserTabComponent implements OnInit {
 
 
   getCertificates(userID: string) {
+    this.loading = true;
     this.apiService.getCertificatesByUser(userID).toPromise().then(res => {
       this.certificates = res;
+      this.loading = false;
     });
   }
 
@@ -108,7 +111,7 @@ export class UserTabComponent implements OnInit {
 
 
     this.apiService.revokeCert(this.selectedCertificate).toPromise().then(res => {
-
+      this.getCertificates(this.userID);
       this.modalService.dismissAll()
       this.toastService.successToast('Certificate Revoked!');
     });

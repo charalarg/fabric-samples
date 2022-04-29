@@ -60,14 +60,14 @@
                     </thead>
                     <tr *ngFor="let certificate of certificates">
                         <td class="py-3 px-3">{{certificate?.Record?.title}}</td>
-                        <td class="py-3 px-3">{{certificate?.Record?.currentState || 'Expired'}}</td>
+                        <td class="py-3 px-3">{{certificate?.Record?.expired ? 'Expired' : 'Valid'}}</td>
                         <td class="py-3 px-2 d-flex justify-content-end">
                             <div class="d-flex p-0">
                                 <button (click)="viewCertificate(viewCert, certificate)"
                                     class="btn btn-md btn-primary mx-1 rounded-0">
                                     <i class="bi bi-eye"></i> View
                                 </button>
-                                <button *ngIf="certificate?.Record?.currentState !== null"
+                                <button *ngIf="!certificate?.Record?.expired"
                                     (click)="revokeCertificate(revokeCert, certificate?.Record?.hash)"
                                     class="btn btn-md btn-danger mx-1 rounded-0">
                                     <i class="bi bi-file-earmark-x"></i>
@@ -77,10 +77,15 @@
                     </tr>
 
                 </table>
-                <div *ngIf="!certificates?.length">
+                <div *ngIf="!loading && !certificates?.length">
                     <p class="py-3 px-3 font-20 border-bottom border-primary">There are currently no issued certificates
                         to this student.</p>
                 </div>
+
+                <div class="spinner-border text-primary" role="status" *ngIf="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+
             </div>
         </div>
     </div>
@@ -94,12 +99,6 @@
     </div>
     <div class="modal-body">
         <div class="row">
-            <div class="col-12 col-md-6">
-                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
-                    <label class="font-16">Organization</label>
-                    <h2 class="font-20 mb-0 font-weight-bold">Ideas Forward</h2>
-                </div>
-            </div>
             <div class="col-12 col-md-6">
                 <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
                     <label class="font-16">Issuer</label>
@@ -130,7 +129,8 @@
             <div class="col-12 col-md-6">
                 <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
                     <label class="font-18">Status</label>
-                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.currentState || 'Expired'}}</h2>
+                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.expired ? 'Expired': 'Valid'}}
+                    </h2>
                 </div>
             </div>
             <div class="col-12">
@@ -144,15 +144,17 @@
             <h4 class="modal-title" id="modal-basic-title">Certificate Transactions</h4>
             <hr class="line-separator">
         </div>
-        <ngb-accordion [closeOthers]="true" activeIds="static-0">
+        <ngb-accordion [closeOthers]="true">
             <ngb-panel [id]="'static-' + i" *ngFor="let trans of selectedTransactions; let i = index;">
                 <ng-template ngbPanelTitle>
                     <div class="d-flex">
-                        <p class="mb-0 px-2"><strong>Org:</strong> Ideas Forward Org</p>
+                        <p class="mb-0 px-2"><strong>Org:</strong> Certification_Organisation_A</p>
                         <p class="mb-0 px-2"><strong>Timestamp:</strong>
                             {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.header.channel_header.timestamp}}
                         </p>
-                        <p class="mb-0 px-2"><strong>Validation Code:</strong> {{trans?.transaction?.validationCode |
+                        <p class="mb-0 px-2"><strong>Transaction Type:</strong>
+                            {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args[0]
+                            |
                             titlecase}}</p>
                     </div>
                 </ng-template>
@@ -161,7 +163,7 @@
 
                         <div class="col-12 col-md-6 py-2">
                             <label class="font-16">Endorser ID</label>
-                            <h2 class="font-20 font-weight-bold text-break"> Ideas Forward Org</h2>
+                            <h2 class="font-20 font-weight-bold text-break"> Certification_Organisation_A</h2>
                         </div>
                         <div class="col-12 col-md-6 py-2">
                             <label class="font-16">Transaction Type</label>

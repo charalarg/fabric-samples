@@ -8,6 +8,7 @@ import { ApiService } from 'src/app/services/api.service';
 })
 export class ManageUsersComponent implements OnInit {
   public users!: any[];
+  public loading: boolean = false;
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
@@ -15,8 +16,10 @@ export class ManageUsersComponent implements OnInit {
   }
 
   async getStudents() {
+    this.loading = true;
     await this.apiService.getUsers().toPromise().then(res => {
       this.users = res;
+      this.loading = false;
     })
   }
 

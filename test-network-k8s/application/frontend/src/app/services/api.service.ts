@@ -42,7 +42,10 @@ export class ApiService {
     return this.httpClient.get<any>(`${this.url}${environment.API_GET_DOCUMENTS}/${userID}`);
   }
   revokeCert(certID:string){
-    return this.httpClient.post<any>(`${this.url}${environment.API_REVOKE_CERT}`, certID);
+    let payload = {
+      document: certID
+    }
+    return this.httpClient.post<any>(`${this.url}${environment.API_REVOKE_CERT}`, payload);
   }
   getTransaction(transactionID:string){
     return this.httpClient.get<any>(`${this.url}${environment.API_GET_TRANSACTIONS}/${transactionID}`);

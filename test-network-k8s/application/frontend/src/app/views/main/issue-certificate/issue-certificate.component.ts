@@ -66,6 +66,7 @@ export class IssueCertificateComponent implements OnInit {
         this.toastService.successToast('Certificate issued!');
         this.fieldForm.reset();
         form.resetForm();
+        this.router.navigate(['main/manage-users']);
         this.fieldForm.patchValue({
           clientId: this.userID
         })

@@ -20,6 +20,8 @@ export class MainComponent implements OnInit {
   public mediaQuery: object = window.matchMedia('(min-width: 1150px)');
   public enableDock: boolean = true;
   public dockSize: string = '85px';
+  public type = 'Push';
+  public doc: any = document.activeElement;
   @ViewChild('sidebar')
   sidebar!: SidebarComponent;
   menuData: Array<IMenuItem> = [];
@@ -38,13 +40,27 @@ export class MainComponent implements OnInit {
     console.log("Sidebar Opened");
   }
   public close(e: any) {
+    if (this.doc.classList.contains("no-close")) {
+      e.cancel = true;
+    }
     console.log("Sidebar Closed");
   }
   toggleMenuClick() {
-    if(window.matchMedia('(min-width: 1150px)').matches){
+    if (window.matchMedia('(min-width: 1150px)').matches) {
+      this.type = 'Push';
+      if (this.sidebar.isOpen) {
+        this.sidebar.close();
+      } else {
+        this.sidebar.open();
+      }
 
-    } else{
-      this.sidebar.toggle();
+    } else {
+      this.type = 'Over';
+      if (this.sidebar.isOpen) {
+        this.sidebar.close();
+      } else {
+        this.sidebar.open();
+      }
     }
   }
 

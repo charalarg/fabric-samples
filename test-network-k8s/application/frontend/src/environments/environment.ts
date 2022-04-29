@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  API_BASE_URL: "http://localhost",
-  // API_BASE_URL: "https://19c5-46-103-133-91.eu.ngrok.io",
+  // API_BASE_URL: "http://localhost",
+  API_BASE_URL: "https://4c26-46-103-135-18.eu.ngrok.io",
   API_LOGIN: "/api/users/login",
   API_CREATE_DOCUMENT: "/api/documents",
   API_GET_JOB: "/api/jobs",
@@ -16,7 +16,8 @@ export const environment = {
   API_GET_TRANSACTIONS: "/api/transactions",
   API_REVOKE_CERT: "/api/documents/revoke",
   
-  APP_URL: "http://localhost",
+  APP_URL: "https://4c26-46-103-135-18.eu.ngrok.io",
+  // APP_URL: "http://localhost",
 
   // LOCALSTORAGE VARIABLES
   ACCESS_TOKEN: "access_token",
