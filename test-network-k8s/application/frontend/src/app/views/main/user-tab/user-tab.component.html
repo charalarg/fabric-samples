@@ -78,14 +78,19 @@
 
                 </table>
                 <div *ngIf="!loading && !certificates?.length">
-                    <p class="py-3 px-3 font-20 border-bottom border-primary">There are currently no issued certificates
+                    <p class="py-3 px-3 font-18 border-bottom border-primary">There are currently no issued certificates
                         to this student.</p>
                 </div>
 
-                <div class="spinner-border text-primary" role="status" *ngIf="loading">
-                    <span class="sr-only">Loading...</span>
-                </div>
+                
 
+            </div>
+            <div class="row" *ngIf="loading">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>

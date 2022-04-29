@@ -27,7 +27,8 @@
                 </div>
                 <div class="input-group mb-3">
                     <input class="form-control bg-light-grey h-58" [ngClass]="{'is-invalid' : fieldForm.get('expires')?.errors && form.submitted}" placeholder="Expiration Date"  formControlName="expires"
-                        ngbDatepicker #d="ngbDatepicker">
+                        ngbDatepicker [minDate]="{year: 1990, month: 1, day: 1}" [maxDate]="{year: 2050, month: 1, day: 1}"
+                         #d="ngbDatepicker">
                     <button class="btn btn-primary" (click)="d.toggle()" type="button"><i
                             class="bi bi-calendar3"></i></button>
                 </div>

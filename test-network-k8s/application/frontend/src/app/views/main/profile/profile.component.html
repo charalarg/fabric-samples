@@ -27,14 +27,19 @@
             </div>
         </div>
     </div>
-    <div class="spinner-border text-primary" role="status" *ngIf="loading">
-        <span class="sr-only">Loading...</span>
-    </div>
-    <div class="row bg-white rounded my-3 single-cert-box" *ngIf="!loading  && !certificates?.length">
-        <div class="col-12 bg-white rounded p-3">
-            <p class="font-22 m-0">You do not have any issued certificates.</p>
+    <div class="row" *ngIf="loading">
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+
+            </div>
         </div>
     </div>
+
+    <p class="py-3 px-3 font-18 border-bottom border-primary" *ngIf="!loading && !certificates?.length">You do not
+        have any issued certificates.</p>
+
+
+
 
 </section>
 

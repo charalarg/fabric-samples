@@ -16,6 +16,10 @@ export class EnrollUserComponent implements OnInit {
   fieldForm!: FormGroup;
   isLoading: boolean = false;
   isDisabled: boolean = false;
+  today:Date = new Date();
+  todayYear:number = new Date().getFullYear();
+  todayDay:number = new Date().getDate();
+  todayMonth:number = new Date().getMonth();
   constructor(
     private formBuilder: FormBuilder,
     private localStorage: LocalStorageService,

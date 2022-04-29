@@ -8,6 +8,7 @@ import { SidebarComponent } from '@syncfusion/ej2-angular-navigations';
 import { LocalStorageService } from 'ngx-webstorage';
 import { ToastsService } from 'src/app/services/toast.servive';
 import { RoleService } from 'src/app/services/role.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'ats-main',
@@ -20,8 +21,9 @@ export class MainComponent implements OnInit {
   public mediaQuery: object = window.matchMedia('(min-width: 1150px)');
   public enableDock: boolean = true;
   public dockSize: string = '85px';
+  public username: string = '';
   public type = 'Push';
-  public doc: any = document.activeElement;
+
   @ViewChild('sidebar')
   sidebar!: SidebarComponent;
   menuData: Array<IMenuItem> = [];
@@ -34,32 +36,40 @@ export class MainComponent implements OnInit {
   element!: TsComponent;
   public position = { X: 'Right', Y: 'Bottom' };
 
-  constructor(private localStorage: LocalStorageService, private router: Router, private toastService: ToastsService, private roleService: RoleService) { }
+  constructor(
+    private localStorage: LocalStorageService,
+    private router: Router,
+    private toastService: ToastsService,
+    private roleService: RoleService,
+    
+  ) { }
 
   public open(e: any) {
     console.log("Sidebar Opened");
   }
   public close(e: any) {
-    if (this.doc.classList.contains("no-close")) {
+    console.log(e);
+    if (window.matchMedia('(min-width: 1150px)').matches) {
       e.cancel = true;
     }
+   
     console.log("Sidebar Closed");
   }
   toggleMenuClick() {
     if (window.matchMedia('(min-width: 1150px)').matches) {
       this.type = 'Push';
       if (this.sidebar.isOpen) {
-        this.sidebar.close();
+        this.sidebar.hide();
       } else {
-        this.sidebar.open();
+        this.sidebar.show();
       }
 
     } else {
       this.type = 'Over';
       if (this.sidebar.isOpen) {
-        this.sidebar.close();
+        this.sidebar.hide();
       } else {
-        this.sidebar.open();
+        this.sidebar.show();
       }
     }
   }
@@ -98,9 +108,11 @@ export class MainComponent implements OnInit {
         )
       }
     });
-
+    this.getUsername();
   }
-
+  getUsername(){
+    this.username = this.localStorage.retrieve(environment.USER)?.userId;
+  }
   logout() {
     this.localStorage.clear();
     this.roleService.roleSubject.next('');

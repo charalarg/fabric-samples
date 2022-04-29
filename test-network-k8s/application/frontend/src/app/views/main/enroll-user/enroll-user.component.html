@@ -49,7 +49,9 @@
                 <div class="input-group mb-3">
                     <input class="form-control bg-light-grey h-58"
                         [ngClass]="{'is-invalid' : fieldForm.get('dateOfBirth')?.errors && form.submitted}"
-                        placeholder="Date of birth" formControlName="dateOfBirth" ngbDatepicker #d="ngbDatepicker">
+                        placeholder="Date of birth" formControlName="dateOfBirth" ngbDatepicker
+                        [minDate]="{year: 1950, month: 1, day: 1}"
+                        [maxDate]="{year: todayYear, month: todayMonth, day: todayDay}" #d="ngbDatepicker">
                     <button class="btn btn-primary" (click)="d.toggle()" type="button"><i
                             class="bi bi-calendar3"></i></button>
                 </div>
