@@ -120,7 +120,7 @@ class DocumentsController {
         subjects_issuer_ca: certObj.getIssuerString(),
         ca_signature_validation: certObj.verifySignature(KEYUTIL.getKey(caCert)),
         verified_document: recover.verify(getBackSigValueHex),
-        expired: document.expires < Date.now().toString(),
+        expired: new Date(parseInt(document.expires)) < new Date(),
         signature: document.signature,
         document: document,
         transaction_ids: transaction_ids,
@@ -180,9 +180,8 @@ class DocumentsController {
       );
       const documents = JSON.parse(data.toString());
       documents.map((doc: DocType) => delete doc.Record.certificate);
-
       documents.map(
-        (doc: DocType) => (doc.Record.expired = (doc.Record.expires as string) < Date.now().toString())
+        (doc: DocType) => (doc.Record.expired = new Date(parseInt(doc.Record.expires as string)) < new Date())
       );
 
       return res.status(OK).json(documents);
