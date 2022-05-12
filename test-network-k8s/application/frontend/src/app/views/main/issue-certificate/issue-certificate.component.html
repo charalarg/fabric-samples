@@ -1,0 +1,44 @@
+<section class="container pt-5 mt-5 pb-5">
+    <div class="row bg-white p-lg-5 p-3 rounded">
+        <div class="col-12 my-2">
+            <div class="d-flex">
+                <a class="px-1 " [routerLink]="['/main/manage-users']">My students</a> > <p
+                    class="px-1 text-primary font-weight-bold">Issue certificate</p> 
+            </div>
+        </div>
+        <div class="col-12 my-2">
+            <h1 class="mb-3 font-30">Issue a certificate</h1>
+            <!-- <p class="font-weight-bold">For user: {{userID}}</p> -->
+        </div>
+        <div class="col-md-12 my-2">
+            <form #form="ngForm" (ngSubmit)="submitForm(form)" [formGroup]="fieldForm"
+                [ngClass]="{'form-submitted': form.submitted}" class="form bg-white" novalidate>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey " id="clientId" formControlName="clientId"
+                        [ngClass]="{'is-invalid' : fieldForm.get('clientId')?.errors && form.submitted}"
+                        placeholder="Student ID" readonly>
+                    <label for="clientId">Student ID</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control bg-light-grey " id="title" formControlName="title"
+                        [ngClass]="{'is-invalid' : fieldForm.get('title')?.errors && form.submitted}"
+                        placeholder="Title">
+                    <label for="title">Certificate Title</label>
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control bg-light-grey h-58" [ngClass]="{'is-invalid' : fieldForm.get('expires')?.errors && form.submitted}" placeholder="Expiration Date"  formControlName="expires"
+                        ngbDatepicker [minDate]="{year: 1990, month: 1, day: 1}" [maxDate]="{year: 2050, month: 1, day: 1}"
+                         #d="ngbDatepicker">
+                    <button class="btn btn-primary" (click)="d.toggle()" type="button"><i
+                            class="bi bi-calendar3"></i></button>
+                </div>
+                
+                <div class="mb-0">
+                    <button [type]="'submit'" class="h-45 btn btn-primary rounded text-white font-18 w-100">
+                        Issue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

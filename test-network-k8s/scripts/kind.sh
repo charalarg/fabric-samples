@@ -18,6 +18,8 @@ function kind_create() {
   local reg_port=${LOCAL_REGISTRY_PORT}
   local ingress_http_port=${NGINX_HTTP_PORT}
   local ingress_https_port=${NGINX_HTTPS_PORT}
+  local project_dir=${PROJECT_DIR}
+  local k8s_dir=${K8S_DIR}
 
   # the 'ipvs'proxy mode permits better HA abilities
 
@@ -27,6 +29,9 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
+    extraMounts:
+      - hostPath: ${project_dir}/${k8s_dir}
+        containerPath: /${k8s_dir}
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration

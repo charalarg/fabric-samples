@@ -181,3 +181,19 @@ spec:
         - org1-peer1.${DOMAIN}
     - hosts:
         - org1-peer-gateway-svc.${DOMAIN}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchdb-ui
+  labels:
+    name: couchdb-ui
+spec:
+  type: NodePort
+  ports:
+    - name: couchdb-ui
+      port: 5984
+      protocol: TCP
+      nodePort: 30084
+  selector:
+    app: org1-peer1

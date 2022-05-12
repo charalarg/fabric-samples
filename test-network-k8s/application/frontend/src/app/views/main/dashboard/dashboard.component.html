@@ -1,0 +1,3 @@
+<app-profile *ngIf="role === 'User'"></app-profile>
+
+<app-manage-users *ngIf="role === 'Admin' || role === 'OrgAdmin'"></app-manage-users>

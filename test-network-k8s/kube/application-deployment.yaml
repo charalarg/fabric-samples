@@ -20,8 +20,11 @@ spec:
     spec:
       containers:
         - name: main
-          image: <image name goes here>
-          imagePullPolicy: Always 
+          image: {{APP_IMAGE}}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+            - containerPort: 9229
           envFrom:
             - configMapRef:
                 name: app-fabric-org1-v1-map
@@ -33,16 +36,128 @@ spec:
             - name: fabricids
               mountPath: /fabric/application/wallet
             - name: fabric-ccp
-              mountPath: /fabric/application/gateways            
+              mountPath: /fabric/application/gateways
             - name: tlscerts
               mountPath: /fabric/tlscacerts
+            - name: cacerts
+              mountPath: /fabric/cacerts
+            - name: app-codebase
+              mountPath: /app
+        - name: frontend
+          image: {{FRONTEND_IMAGE}}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4200
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+          volumeMounts:
+            - name: frontend-codebase
+              mountPath: /app
+        - name: redis
+          image: redis:6.2.5
+          ports:
+            - containerPort: 6379
+        - name: mongo
+          image: mongo
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: app-store
+              mountPath: /data/db
+              subPath: db
+            - name: mongo-init-script
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
+        - name: app-store
+          persistentVolumeClaim:
+#            claimName: fabric-org1-app
+            claimName: fabric-org1
+        - name: mongo-init-script
+          hostPath:
+            path: /test-network-k8s/application/docker-entrypoint-initdb.d
+        - name: app-codebase
+          hostPath:
+            path: /test-network-k8s/application/document_notarization
+        - name: frontend-codebase
+          hostPath:
+            path: /test-network-k8s/application/frontend
         - name: fabric-ccp
           configMap:
             name: app-fabric-ccp-v1-map
         - name: fabricids
-          configMap:
-            name: app-fabric-ids-v1-map
+          hostPath:
+            path: /test-network-k8s/build/application/wallet
         - name: tlscerts
           configMap:
             name: app-fabric-tls-v1-map
+        - name: cacerts
+          configMap:
+            name: app-fabric-org1-cacerts-v1-map
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-deployment
+spec:
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+    - name: mongo
+      port: 27017
+      protocol: TCP
+    - name: frontend
+      port: 4200
+      protocol: TCP
+    - name: debugger
+      port: 9229
+      protocol: TCP
+  selector:
+    app: application-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application-deployment-node-port
+spec:
+  type: NodePort
+  ports:
+    - name: mongo
+      port: 27017
+      protocol: TCP
+      nodePort: 30017
+    - name: debugger
+      port: 9229
+      protocol: TCP
+      nodePort: 30029
+  selector:
+    app: application-deployment
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: application-deployment
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2$3
+spec:
+  rules:
+    - http:
+        paths:
+          - path: "/()(.*)"
+            pathType: Prefix
+            backend:
+              service:
+                name: application-deployment
+                port:
+                  number: 4200
+          - path: "/api(/|$)(.*)"
+            pathType: Prefix
+            backend:
+              service:
+                name: application-deployment
+                port:
+                  number: 3000

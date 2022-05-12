@@ -1,0 +1,65 @@
+<div class="container-fluid custom-bg p-0 px-3 full-height">
+    <section class="container pt-5 pb-5">
+        <div class="row bg-white p-lg-5 p-3 rounded">
+
+            <div class="col-12 my-3">
+                <h1 class="mb-3 font-30">Certificate Verifier</h1>
+            </div>
+            <div class="col-12 my-2 d-flex justify-content-center" *ngIf="loading">
+                <div class="spinner-grow" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="col-md-12 my-2" *ngIf="!loading">
+
+                <div *ngIf="certificate?.verified_document && !certificate?.expired"
+                    class="val-box  d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-check2-circle font-100 text-success"></i>
+                    <h1 class="font-30 text-success my-2 font-weight-semibold">Valid</h1>
+                </div>
+                <div *ngIf="!certificate?.verified_document"
+                    class="val-box  d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-x-circle font-100 text-danger"></i>
+                    <h1 class="font-30 text-danger my-2 font-weight-semibold">Invalid Certificate</h1>
+                </div>
+                <div *ngIf="certificate?.verified_document && certificate?.expired"
+                    class="val-box  d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-hourglass font-100 text-danger"></i>
+                    <h1 class="font-30 text-danger my-2 font-weight-semibold">Expired Certificate</h1>
+                </div>
+            </div>
+            <div class="col-md-12 my-2" *ngIf="certificate?.verified_document">
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Title</label>
+                    <h2 class="font-23 font-weight-bold">{{certificate?.document?.title}}</h2>
+                </div>
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Issued by</label>
+                    <h2 class="font-23 font-weight-bold">{{certificate?.document?.issuer}}</h2>
+                </div>
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Issued to</label>
+                    <h2 class="font-23 font-weight-bold">{{certificate?.document?.clientName}}
+                        {{certificate?.document?.clientSurname}}</h2>
+                </div>
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Created</label>
+                    <h2 class="font-23 font-weight-bold">{{certificate?.document?.timestamp | date:'MM/dd/yyyy'}}</h2>
+                </div>
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Expires</label>
+                    <h2 class="font-23 font-weight-bold">{{certificate?.document?.expires | date:'MM/dd/yyyy'}}</h2>
+                </div>
+                <div class="d-flex flex-column align-items-center justify-content-center my-2">
+                    <label class="font-18">Hash</label>
+                    <h2 class="font-23 font-weight-bold text-break">{{certificate?.document?.hash}}</h2>
+                </div>
+
+            </div>
+            <!-- <div class="col-12 my-3" *ngIf="certificate?.ca_signature_validation">
+                <h1 class="mb-3 font-30">Certificate Transactions</h1>
+            </div> -->
+        </div>
+    </section>
+
+</div>

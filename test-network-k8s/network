@@ -17,6 +17,8 @@ set -o errexit
 # todo: allow relative paths for input arguments.
 cd "$(dirname "$0")"
 
+export PROJECT_DIR=${TEST_NETWORK_PROJECT_DIR:-/home/charg/Documents/blockchain/research/fabric-samples}
+export K8S_DIR=${TEST_NETWORK_K8S_DIR:-/test-network-k8s}
 export CLUSTER_RUNTIME=${TEST_NETWORK_CLUSTER_RUNTIME:-kind}        # or k3s
 export CONTAINER_CLI=${CONTAINER_CLI:-docker}                       # or nerdctl for containerd
 export CONTAINER_NAMESPACE=${TEST_NETWORK_CONTAINER_NAMESPACE:-""}  # or "--namespace k8s.io" for containerd / nerdctl
@@ -32,6 +34,10 @@ export DOMAIN=${TEST_NETWORK_DOMAIN:-vcap.me}
 export CHANNEL_NAME=${TEST_NETWORK_CHANNEL_NAME:-mychannel}
 export ORDERER_TIMEOUT=${TEST_NETWORK_ORDERER_TIMEOUT:-10s}     # see https://github.com/hyperledger/fabric/issues/3372
 export TEMP_DIR=${PWD}/build
+
+export CHAINCODE_IMAGE=${TEST_NETWORK_CHAINCODE_IMAGE:-document-notarization-chaincode}
+export APPLICATION_IMAGE=${TEST_NETWORK_APPLICATION_IMAGE:-document-notarization-application}
+export FRONTEND_IMAGE=${TEST_NETWORK_FRONTEND_IMAGE:-document-notarization-frontent}
 
 LOG_FILE=${TEST_NETWORK_LOG_FILE:-network.log}
 DEBUG_FILE=${TEST_NETWORK_DEBUG_FILE:-network-debug.log}
@@ -143,7 +149,7 @@ elif [ "${MODE}" == "rest-easy" ]; then
 
 elif [ "${MODE}" == "application" ]; then
   log "Getting application connection information:"
-  application_connection
+  deploy_application $@
   log "🏁 - Application connection information ready."
 
 else

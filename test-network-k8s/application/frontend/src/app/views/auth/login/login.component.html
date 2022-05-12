@@ -1,0 +1,17 @@
+<section class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12 px-0">
+                    <div class="bg-white rounded px-0 py-3 my-3 text-center px-3">
+                        <img class="img-fluid" src="/assets/img/logo-ideasforward-full-hor-lightbg.svg">
+                    </div>
+                </div>
+            </div>
+           
+            <idf-auth [isDisabled]="isDisabled" [description]="description" [bgColor]="bgColor" [viewLabel]="viewLabel"
+            [submitButtonLabel]="submitButtonLabel" [fields]="loginFields" (onSubmit)="getLoginValues($event)">
+            </idf-auth>
+        </div>
+    </div>
+</section>

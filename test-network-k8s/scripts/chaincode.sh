@@ -71,6 +71,7 @@ function deploy_chaincode() {
   local cc_name=$1
   local cc_label=$2
   local cc_folder=$(absolute_path $3)
+  local sequence=$4
 
   local temp_folder=$(mktemp -d)
   local cc_package=${temp_folder}/${cc_name}.tgz
@@ -87,19 +88,19 @@ function deploy_chaincode() {
   fi
 
   launch_chaincode        ${cc_name} ${CHAINCODE_ID} ${CHAINCODE_IMAGE}
-  activate_chaincode      ${cc_name} ${cc_package}
+  activate_chaincode      ${cc_name} ${cc_package} ${sequence}
 }
 
 # Infer a reasonable name for the chaincode image based on the folder path conventions, or
-# allow the user to override with TEST_NETWORK_CHAINCODE_IMAGE.
+# allow the user to override with CHAINCODE_IMAGE.
 function set_chaincode_image() {
   local cc_folder=$1
 
-  if [ -z "$TEST_NETWORK_CHAINCODE_IMAGE" ]; then
+  if [ -z "$CHAINCODE_IMAGE" ]; then
     # cc_folder path starting with first index of "fabric-samples"
     CHAINCODE_IMAGE=${cc_folder/*fabric-samples/fabric-samples}
   else
-    CHAINCODE_IMAGE=${TEST_NETWORK_CHAINCODE_IMAGE}
+    CHAINCODE_IMAGE=${CHAINCODE_IMAGE}
   fi
 }
 
@@ -111,12 +112,13 @@ function set_chaincode_image() {
 function activate_chaincode() {
   local cc_name=$1
   local cc_package=$2
+  local sequence=$3
 
   set_chaincode_id    ${cc_package}
 
   install_chaincode   ${cc_package}
-  approve_chaincode   ${cc_name} ${CHAINCODE_ID}
-  commit_chaincode    ${cc_name}
+  approve_chaincode   ${cc_name} ${CHAINCODE_ID} ${sequence}
+  commit_chaincode    ${cc_name} ${sequence}
 }
 
 function query_chaincode() {
@@ -290,6 +292,7 @@ function approve_chaincode() {
   local peer=peer1
   local cc_name=$1
   local cc_id=$2
+  local sequence=$3
   push_fn "Approving chaincode ${cc_name} with ID ${cc_id}"
 
   export_peer_context $org $peer
@@ -298,9 +301,9 @@ function approve_chaincode() {
     chaincode approveformyorg \
     --channelID     ${CHANNEL_NAME} \
     --name          ${cc_name} \
-    --version       1 \
+    --version       ${sequence} \
     --package-id    ${cc_id} \
-    --sequence      1 \
+    --sequence      ${sequence} \
     --orderer       org0-orderer1.${DOMAIN}:443 \
     --connTimeout   ${ORDERER_TIMEOUT} \
     --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem
@@ -313,6 +316,7 @@ function commit_chaincode() {
   local org=org1
   local peer=peer1
   local cc_name=$1
+  local sequence=$2
   push_fn "Committing chaincode ${cc_name}"
 
   export_peer_context $org $peer
@@ -321,8 +325,8 @@ function commit_chaincode() {
     chaincode commit \
     --channelID     ${CHANNEL_NAME} \
     --name          ${cc_name} \
-    --version       1 \
-    --sequence      1 \
+    --version       ${sequence} \
+    --sequence      ${sequence} \
     --orderer       org0-orderer1.${DOMAIN}:443 \
     --connTimeout   ${ORDERER_TIMEOUT} \
     --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderer1/tls/signcerts/tls-cert.pem

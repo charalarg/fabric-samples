@@ -1,0 +1,218 @@
+<section class="container pt-5 mt-5 pb-5">
+    <div class="row bg-white p-lg-5 p-3 rounded">
+        <!-- <div class="col-12 my-2">
+            <div class="d-flex">
+                <a class="px-1" [routerLink]="['/main/dashboard']">Home</a> > <p
+                    class="px-1 text-primary font-weight-bold">Student</p>
+            </div>
+        </div> -->
+        <div class="col-12 my-2 d-flex justify-content-between flex-wrap">
+            <div>
+                <h1 class="mb-3 font-30">Student's Details</h1>
+            </div>
+            <div>
+                <a [routerLink]="['/main/issue-certificate']" [queryParams]="{userID: userID}"
+                    class="btn btn-primary rounded text-white font-18 w-100 px-3">
+                    Issue new certificate
+                </a>
+            </div>
+        </div>
+        <div class="col-12  mt-3 mb-5 d-flex justify-content-between flex-wrap">
+            <div
+                class="d-flex flex-column align-items-start justify-content-start my-2 px-2 border-bottom border-primary">
+                <label class="font-16">Name</label>
+                <h2 class="font-20 font-weight-bold">{{name}}</h2>
+            </div>
+            <div
+                class="d-flex flex-column align-items-start justify-content-start my-2 px-2 border-bottom border-primary">
+                <label class="font-16">Surname</label>
+                <h2 class="font-20 font-weight-bold">{{surname}}</h2>
+            </div>
+            <div
+                class="d-flex flex-column align-items-start justify-content-start my-2 px-2 border-bottom border-primary">
+                <label class="font-16">National ID</label>
+                <h2 class="font-20 font-weight-bold">{{nationalId}}</h2>
+            </div>
+            <div
+                class="d-flex flex-column align-items-start justify-content-start my-2 px-2 border-bottom border-primary">
+                <label class="font-16">Date of Birth</label>
+                <h2 class="font-20 font-weight-bold">{{dateOfBirth}}</h2>
+            </div>
+            <div
+                class="d-flex flex-column align-items-start justify-content-start my-2 px-2 border-bottom border-primary">
+                <label class="font-16">Gender</label>
+                <h2 class="font-20 font-weight-bold">{{gender}}</h2>
+            </div>
+        </div>
+
+        <div class="col-12 my-2 d-flex justify-content-between flex-wrap">
+            <div>
+                <h1 class="mb-3 font-30">Student's Certificates</h1>
+            </div>
+        </div>
+        <div class="col-md-12 my-2">
+            <div class="table-responsive">
+                <table class="table custom-table border-primary border">
+                    <thead class="bg-primary text-white">
+                        <td class="py-3 px-3">Certificates</td>
+                        <td class="py-3 px-3">Status</td>
+                        <td class="py-3 px-3 d-flex justify-content-end">Actions</td>
+                    </thead>
+                    <tr *ngFor="let certificate of certificates">
+                        <td class="py-3 px-3">{{certificate?.Record?.title}}</td>
+                        <td class="py-3 px-3">{{certificate?.Record?.expired ? 'Expired' : 'Valid'}}</td>
+                        <td class="py-3 px-2 d-flex justify-content-end">
+                            <div class="d-flex p-0">
+                                <button (click)="viewCertificate(viewCert, certificate)"
+                                    class="btn btn-md btn-primary mx-1 rounded-0">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                                <button *ngIf="!certificate?.Record?.expired"
+                                    (click)="revokeCertificate(revokeCert, certificate?.Record?.hash)"
+                                    class="btn btn-md btn-danger mx-1 rounded-0">
+                                    <i class="bi bi-file-earmark-x"></i>
+                                    Revoke</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+                <div *ngIf="!loading && !certificates?.length">
+                    <p class="py-3 px-3 font-18 border-bottom border-primary">There are currently no issued certificates
+                        to this student.</p>
+                </div>
+
+                
+
+            </div>
+            <div class="row" *ngIf="loading">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<ng-template #viewCert let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Certificate Details</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-16">Issuer</label>
+                    <h2 class="font-20 mb-0 font-weight-bold">{{selectedCertificate?.Record?.issuer}}</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-18">Issued to</label>
+                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.clientName}}
+                        {{selectedCertificate?.Record?.clientSurname}}</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-18">Title</label>
+                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.title}}</h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-16">Expires</label>
+                    <h2 class="font-20 mb-0 font-weight-bold">
+                        {{selectedCertificate?.Record?.expires| date:'MM/dd/yyyy'}}
+                    </h2>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-18">Status</label>
+                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.expired ? 'Expired': 'Valid'}}
+                    </h2>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="d-flex flex-column align-items-start justify-content-start mb-0 p-3">
+                    <label class="font-18">Certificate Hash</label>
+                    <h2 class="font-23 font-weight-bold">{{selectedCertificate?.Record?.hash}}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="my-4">
+            <h4 class="modal-title" id="modal-basic-title">Certificate Transactions</h4>
+            <hr class="line-separator">
+        </div>
+        <ngb-accordion [closeOthers]="true">
+            <ngb-panel [id]="'static-' + i" *ngFor="let trans of selectedTransactions; let i = index;">
+                <ng-template ngbPanelTitle>
+                    <div class="d-flex">
+                        <p class="mb-0 px-2"><strong>Org:</strong> Certification_Organisation_A</p>
+                        <p class="mb-0 px-2"><strong>Timestamp:</strong>
+                            {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.header.channel_header.timestamp}}
+                        </p>
+                        <p class="mb-0 px-2"><strong>Transaction Type:</strong>
+                            {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args[0]
+                            |
+                            titlecase}}</p>
+                    </div>
+                </ng-template>
+                <ng-template ngbPanelContent>
+                    <div class="row">
+
+                        <div class="col-12 col-md-6 py-2">
+                            <label class="font-16">Endorser ID</label>
+                            <h2 class="font-20 font-weight-bold text-break"> Certification_Organisation_A</h2>
+                        </div>
+                        <div class="col-12 col-md-6 py-2">
+                            <label class="font-16">Transaction Type</label>
+                            <h2 class="font-20 font-weight-bold text-break">
+                                {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.data.actions[0].payload.chaincode_proposal_payload.input.chaincode_spec.input.args[0]}}
+                            </h2>
+                        </div>
+
+                        <div class="col-12 col-md-6 py-2">
+                            <label class="font-16">Proposal Hash</label>
+                            <h2 class="font-20 font-weight-bold text-break">
+                                {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.data.actions[0].payload.action.proposal_response_payload.proposal_hash}}
+                            </h2>
+                        </div>
+                        <div class="col-12 col-md-6 py-2">
+                            <label class="font-16">Signature</label>
+                            <h2 class="font-20 font-weight-bold text-break">
+                                {{trans.transaction.transactionEnvelope.transactionEnvelope.signature}}</h2>
+                        </div>
+                        <div class="col-12 py-2">
+                            <label class="font-16">Certificate</label>
+                            <h2 class="font-20 font-weight-bold text-break">
+                                {{trans.transaction.transactionEnvelope.transactionEnvelope.payload.data.actions[0].payload.action.endorsements[0].endorser.id_bytes}}
+                            </h2>
+                        </div>
+                    </div>
+
+                </ng-template>
+            </ngb-panel>
+        </ngb-accordion>
+    </div>
+</ng-template>
+
+<ng-template #revokeCert let-modal>
+    <div class="modal-header pb-0 border-0">
+
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body px-5 text-center">
+        <h4 class="modal-title" id="modal-basic-title px-2 text-center">Revoke this certificate?</h4>
+        <div class="py-4 text-center">
+            <button type="button" class="btn btn-light btn-lg mx-2" (click)="modal.close('Save click')">Cancel</button>
+            <button type="button" class="btn btn-danger btn-lg mx-2" (click)="revokeThisCert()">Revoke</button>
+        </div>
+    </div>
+
+</ng-template>
